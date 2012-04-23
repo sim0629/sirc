@@ -10,7 +10,7 @@ import datetime
 #.strftime('%Y-%m-%d %H:%M:%S')
 #pymongo.Connection().sirc_db['#sgm'].remove() #ereate_index([('datetime', 1)])
 #exit()
-TARGET = '#snucse12'
+TARGET = '#sgm'
 
 class SBot(ircbot.SingleServerIRCBot):
 	def __init__(self):
