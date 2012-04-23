@@ -16,6 +16,8 @@ SESSION_ID = 'SIRC_SESSION_ID'
 TOKEN_SECRET = 'OAUTH_TOKEN_SECRET'
 sys.path.append(PATH)
 
+from config import *
+
 def application(environ, start_response):
 	if not OPEN:
 		return test(start_response, '점검 중')
@@ -121,8 +123,6 @@ def create_session_id():
 
 	bag = string.ascii_uppercase + string.ascii_lowercase + string.digits
 	return ''.join(random.sample(bag * 24, 24))
-
-from config import *
 
 def request():
 	import oauth2
