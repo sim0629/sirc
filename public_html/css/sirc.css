@@ -1,0 +1,10 @@
+@charset "utf-8";
+
+body { /*overflow:hidden;*/ }
+li.ui-li-static { font-weight:normal; padding:5px; border-bottom:1px solid #cdcdcd; }
+div.datetime, div.source { float:left; }
+div.datetime { font-size:8px; line-height:1.2; text-align:center; }
+div.source { margin:0 5px; }
+span.nick { font-weight:bold; }
+
+div#log { overflow:auto; }

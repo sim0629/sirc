@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<title>SIRC</title>
+	<link rel="stylesheet" href="/css/jquery.mobile-1.0.1.min.css" />
+	<link rel="stylesheet" href="/css/sirc.css" />
+	<script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.mobile-1.0.1.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.form.js"></script>
+	<script type="text/javascript" src="/js/touchscroll.js"></script>
+	<script type="text/javascript" src="/js/sirc.js"></script>
+</head>
+<body>
+	<div id="log">
+		<ul data-role="listview">
+		{% for log in logs %}
+			<li>
+				<div class="datetime">{{ log.datetime }}</div>
+				<div class="source">&lt;<span class="nick">{{ log.source }}</span>&gt;</div>
+				<div class="message">{{ log.message }}</div>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+	<form id="form" action="/sgm/send/" method="get">
+		<input id="input" name="message" type="text" />
+	</form>
+</body>
+</html>
