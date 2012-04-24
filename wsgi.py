@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import re
 import sys
 
 import cgi
@@ -84,6 +85,10 @@ def update(environ, start_response, session):
 	context = {}
 	logs = db[TARGET].find({'datetime': {"$gt": session['datetime']}}).sort('datetime')
 	db.session.update({'session_id': session['session_id']}, {'$set': {'datetime': datetime.datetime.now()}})
+	logs = list(logs)
+	for log in logs:
+		log['source'] = remove_invalid_utf8_char(log['source'])
+		log['message'] = remove_invalid_utf8_char(log['message'])
 	context['logs'] = logs
 	start_response('200 OK', [('Content-Type', 'text/xml; charset=utf-8')])
 	return [render('result.xml', context)]
@@ -104,7 +109,8 @@ def default(environ, start_response, session):
 	db.session.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
 	logs = list(logs)
 	for log in logs:
-		log['message'] = cgi.escape(log['message'])
+		log['source'] = cgi.escape(remove_invalid_utf8_char(log['source']))
+		log['message'] = cgi.escape(remove_invalid_utf8_char(log['message']))
 	context['logs'] = logs
 	start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
 	return [render('chat.html', context)]
@@ -112,7 +118,7 @@ def default(environ, start_response, session):
 def render(template, context):
 	return jinja2.Environment(loader=jinja2.FileSystemLoader(PATH + '/public_html')).get_template(template).render(context).encode('utf-8')
 
-def error(start_response, code='404 Not Found', message=''):
+def error(start_response, code='404 Not Found', message='error'):
 	context = {}
 	context['message'] = message.decode('utf-8')
 	start_response(code, [('Content-Type', 'text/html; charset=utf-8')])
@@ -144,6 +150,23 @@ def request_access_token(oauth_token, oauth_token_secret, oauth_verifier):
 	request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, token)
 	response = httplib2.Http().request(request.to_url())
 	return response[1]
+
+#pattern = re.compile("((?:[\x00-\x7F]|[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3})+)|([\x80-\xBF])|([\xC0-\xFF])", re.UNICODE)
+pattern = re.compile("[\x00-\x1F]|[\x80-\x9F]", re.UNICODE)
+def remove_invalid_utf8_char(s):
+	#return unicode(s.encode('utf-8'), 'utf-8', 'replace')
+	return pattern.sub(u'�', s)
+	'''
+	matches = pattern.match(s)
+	if matches is None:
+		return s
+	if len(matches.group(1)) != 0:
+		return matches.group(1)
+	elif len(matches.group(2)) != 0:
+		return "\xC2" + matches.group(2)
+	else:
+		return "\xC3" + chr(ord(matches.group(3)) - 64)
+	'''
 
 if __name__ == '__main__':
 	print 'Apache와 연동하세요.'

@@ -34,9 +34,10 @@ class SBot(ircbot.SingleServerIRCBot):
 		self._log(e.target(), e.source().split('!')[0], e.arguments()[0])
 
 	def _log(self, target, source, message):
-		data = {'datetime': datetime.datetime.now(),
-				'source': source,
-				'message': message
+		data = {
+			'datetime': datetime.datetime.now(),
+			'source': source,
+			'message': message
 		}
 		try:
 			self.db[target].insert(data)

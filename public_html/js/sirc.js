@@ -38,10 +38,10 @@ sirc_update = function() {
 		dataType: 'xml',
 		success: function(xml) {
 			add_process(xml);
-			setTimeout(sirc_update, 1000);
+			//setTimeout(sirc_update, 1000);
 		},
 		error: function() {
-			setTimeout(sirc_update, 1000);
+			//setTimeout(sirc_update, 1000);
 		}
 	});
 };
@@ -52,7 +52,7 @@ datetime_format = function(d) {
 };
 */
 $(document).ready(function() {
-	$('#log').height($('body').height() - 40);
+	$('#log').height($('body').height() - 80);
 	touchScroll('log');
 	$('.datetime').each(function() {
 		$(this).html(datetime_format($(this).html()));
@@ -61,7 +61,7 @@ $(document).ready(function() {
 		$(this).attr('class', 'ui-li-static');
 	});
 	scroll2end();
-	sirc_update();
+	//sirc_update();
 	$('#form').submit(function() {
 		$(this).ajaxSubmit({
 			success: function(xml) {
