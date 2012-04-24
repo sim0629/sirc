@@ -28,6 +28,25 @@ class SBot(ircbot.SingleServerIRCBot):
 	def on_welcome(self, c, e):
 		c.join(TARGET)
 		self.connected = True
+
+	def on_nick(self, c, e):
+		before = e.source().split('!')[0]
+		after = e.target()
+		for target, ch in self.channels.items():
+			if ch.has_user(before):
+				self._log(target, before, '-*- NICK -*- <%s>' % after)
+	
+	def on_join(self, c, e):
+		self._log(e.target(), e.source(), '-*- JOIN -*-')
+
+	def on_part(self, c, e):
+		self._log(e.target(), e.source(), '-*- PART -*-')
+	
+	def on_quit(self, c, e):
+		nick = e.source().split('!')[0]
+		for target, ch in self.channels.items():
+			if ch.has_user(nick):
+				self._log(target, e.source(), '-*- QUIT -*-')
 	
 	def on_pubmsg(self, c, e):
 		self._log(e.target(), e.source().split('!')[0], e.arguments()[0])
