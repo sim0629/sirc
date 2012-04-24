@@ -67,8 +67,10 @@ def callback(environ, start_response):
 	else:
 		return error(start_response)
 	parameters = cgi.parse_qs(request_access_token(oauth_token, oauth_token_secret, oauth_verifier))
-	if 'account' in parameters:
+	if 'account' in parameters: # snucse
 		account = parameters['account'][0]
+	elif 'screen_name' in parameters: # twitter
+		account = parameters['screen_name'][0]
 	else:
 		return error(start_response)
 	session_id = create_session_id()
