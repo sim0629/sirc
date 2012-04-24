@@ -25,16 +25,28 @@
 		</ul>
 	</div>
 	<div data-role="footer" data-position="fixed" data-theme="c">
-		<table><tr>
-		<td width="32">
-			<a id="button" href="#" data-role="button" data-icon="refresh" data-iconpos="notext" onclick="sirc_update();">update</a>
-		</td>
-		<td>
-			<form id="form" action="/sgm/send/" method="get">
-				<input id="input" name="message" type="text" />
-			</form>
-		</td>
-		</tr></table>
+		<div id="setting" style="display:none;">
+			<label for="flip-polling">Auto Polling : </label>
+			<select name="polling" id="flip-polling" data-role="slider" data-mini="true">
+				<option value="off">Off</option>
+				<option value="on">On</option>
+			</select>
+		</div>
+		<table>
+		<tr>
+			<td width="32">
+				<a id="update" class="button" href="#" data-role="button" data-icon="refresh" data-iconpos="notext" onclick="return sirc_update();">update</a>
+			</td>
+			<td>
+				<form id="form" action="/sgm/send/" method="get">
+					<input id="input" name="message" type="text" />
+				</form>
+			</td>
+			<td width="32">
+				<a id="setting" class="button" href="#" data-role="button" data-icon="gear" data-iconpos="notext" onclick="return sirc_setting();">setting</a>
+			</td>
+		</tr>
+		</table>
 	</div>
 </div>
 </body>

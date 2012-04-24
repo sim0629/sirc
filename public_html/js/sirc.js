@@ -1,5 +1,9 @@
 /* 졸려 by sgm */
 
+var auto_polling = function() {
+	return $('#flip-polling').val();
+};
+
 var datetime_format = function(datetime) {
 	return datetime.substr(0, 19).replace(' ', '<br />');
 };
@@ -49,6 +53,11 @@ var sirc_update = function() {
 		}
 	});
 	$('#button').attr('disabled', 'disabled');
+	return false;
+};
+
+var sirc_setting = function() {
+	$('#setting').toggle();
 };
 
 $(document).ready(function() {

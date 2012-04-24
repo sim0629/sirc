@@ -8,5 +8,6 @@ div.source { font-weight:normal; float:left; margin:0px 5px; }
 span.nick { font-weight:bold; }
 div.message { word-wrap:break-word; font-weight:normal; }
 #log li { padding:5px !important; border-color:#efefef; }
-a#button { top:0; }
+a.button { top:0 !important; }
+label { float:left; padding-top:7px; }
 
