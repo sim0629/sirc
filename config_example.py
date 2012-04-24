@@ -2,6 +2,11 @@
 
 OPEN = True
 
+# IRC
+SERVER = '115.92.130.250'
+PORT = 16667
+BOT_NAME = 's'
+
 # OAuth 
 CONSUMER_KEY = ''
 CONSUMER_SECRET = ''

@@ -14,7 +14,7 @@ TARGET = '#sgm'
 class SBot(ircbot.SingleServerIRCBot):
 	def __init__(self):
 		ircbot.SingleServerIRCBot.__init__(self,
-			[('115.92.130.250', 16667), ],
+			[(config.SERVER, config.PORT), ],
 			config.BOT_NAME,
 			'm',
 		)
@@ -74,6 +74,7 @@ class SBot(ircbot.SingleServerIRCBot):
 					self.db.send.remove(data)
 					self._log(TARGET, self._nickname, message, data['session_id'])
 			except irclib.ServerNotConnectedError:
+				self.connected = False
 				self._connect()
 		self.ircobj.execute_delayed(1, self._fetch)
 
