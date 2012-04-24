@@ -3,5 +3,6 @@
 table { width:100%; }
 caption { display:none; }
 input { width:95% !important; }
+input.disabled { background-color:#cdcdcd; }
 div.message { word-wrap:break-word; }
 

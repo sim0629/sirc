@@ -49,8 +49,12 @@ $(document).ready(function() {
 		$(this).ajaxSubmit({
 			success: function(xml) {
 				$('#input').val('');
+				$('#input').removeAttr('disabled');
+				$('#input').removeClass('disabled');
 			}
 		});
+		$('#input').attr('disabled', 'disabled');
+		$('#input').addClass('disabled');
 		return false;
 	});
 });
