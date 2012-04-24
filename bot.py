@@ -7,16 +7,15 @@ import pymongo
 
 import datetime
 
-#.strftime('%Y-%m-%d %H:%M:%S')
-#pymongo.Connection().sirc_db['#sgm'].remove() #ereate_index([('datetime', 1)])
-#exit()
+import config
+
 TARGET = '#sgm'
 
 class SBot(ircbot.SingleServerIRCBot):
 	def __init__(self):
 		ircbot.SingleServerIRCBot.__init__(self,
 			[('115.92.130.250', 16667), ],
-			's',
+			config.BOT_NAME,
 			'm',
 		)
 		self.connected = False
@@ -33,11 +32,12 @@ class SBot(ircbot.SingleServerIRCBot):
 	def on_pubmsg(self, c, e):
 		self._log(e.target(), e.source().split('!')[0], e.arguments()[0])
 
-	def _log(self, target, source, message):
+	def _log(self, target, source, message, sirc_session_id=''):
 		data = {
 			'datetime': datetime.datetime.now(),
 			'source': source,
-			'message': message
+			'message': message,
+			'sirc_session_id': sirc_session_id
 		}
 		try:
 			self.db[target].insert(data)
@@ -53,7 +53,7 @@ class SBot(ircbot.SingleServerIRCBot):
 					message = ('<%s> %s' % (account, data['message'])).encode('utf-8')
 					self.connection.privmsg(TARGET, message)
 					self.db.send.remove(data)
-					self._log(TARGET, self._nickname, message)
+					self._log(TARGET, self._nickname, message, data['session_id'])
 			except irclib.ServerNotConnectedError:
 				self._connect()
 		self.ircobj.execute_delayed(1, self._fetch)

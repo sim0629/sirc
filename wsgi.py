@@ -83,7 +83,7 @@ def callback(environ, start_response):
 
 def update(environ, start_response, session):
 	context = {}
-	logs = db[TARGET].find({'datetime': {"$gt": session['datetime']}}).sort('datetime')
+	logs = db[TARGET].find({'datetime': {"$gt": session['datetime']}, 'sirc_session_id': {"$ne": session['session_id']}}).sort('datetime')
 	db.session.update({'session_id': session['session_id']}, {'$set': {'datetime': datetime.datetime.now()}})
 	logs = list(logs)
 	for log in logs:
@@ -97,9 +97,18 @@ def send(environ, start_response, session):
 	context = {}
 	parameters = cgi.parse_qs(environ.get('QUERY_STRING', ''))
 	message = parameters['message'][0].decode('utf-8')
-	db.send.insert({'account': session['account'], 'message': message})
-	start_response('200 OK', [])
-	return []
+	db.send.insert({
+		'account': session['account'],
+		'message': message,
+		'session_id': session['session_id']
+	})
+	context['logs'] = [{
+		'source': config.BOT_NAME,
+		'message': '<%s> %s' % (remove_invalid_utf8_char(session['account']), remove_invalid_utf8_char(message)),
+		'datetime': datetime.datetime.now()
+	}]
+	start_response('200 OK', [('Content-Type', 'text/xml; charset=utf-8')])
+	return [render('result.xml', context)]
 
 def default(environ, start_response, session):
 	context = {}
