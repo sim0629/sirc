@@ -12,14 +12,8 @@ html_encode = function(s) {
 	return s;
 };
 
-scroll2end = function() {
-	var log = document.getElementById('log');
-	log.scrollTop = log.scrollHeight;
-};
-
 append_log = function(datetime, source, message) {
-	$('ul').append('<li class="ui-li-static"><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + html_encode(message) + '</div></li>');
-	scroll2end();
+	$('ul').append('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + html_encode(message) + '</div></li>');
 };
 
 add_process = function(xml) {
@@ -46,26 +40,14 @@ sirc_update = function() {
 	});
 };
 
-/*
-datetime_format = function(d) {
-	return d.getFullYear() + '-' + (d.getMonth() < 9 ? '0' : '') + (d.getMonth() + 1) + '-' + (d.getDate() < 10 ? '0' : '') + d.getDate() + ' ' + (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes() + ':' + (d.getSeconds() < 10 ? '0' : '') + d.getSeconds();
-};
-*/
 $(document).ready(function() {
-	$('#log').height($('body').height() - 80);
-	touchScroll('log');
 	$('.datetime').each(function() {
 		$(this).html(datetime_format($(this).html()));
 	});
-	$('li').each(function() {
-		$(this).attr('class', 'ui-li-static');
-	});
-	scroll2end();
 	//sirc_update();
 	$('#form').submit(function() {
 		$(this).ajaxSubmit({
 			success: function(xml) {
-				add_process(xml);
 				$('#input').val('');
 			}
 		});
