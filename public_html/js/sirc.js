@@ -17,13 +17,23 @@ var append_log = function(datetime, source, message) {
 };
 
 var add_process = function(xml) {
-	$('log', xml).each(function() {
+	$('log', xml).each(function(i) {
 		var datetime = $(this).find('datetime').text();
 		var source = $(this).find('source').text();
 		var message = $(this).find('message').text();
 		append_log(datetime, source, message);
 	});
+	scroll_end();
+	$('#log > ul').listview('refresh');
 };
+
+var scroll_end = function() {
+	//alert($('#log').height());
+	$('body,html,document').animate({scrollTop: $('#log').height()}, 1000);
+	//$('#wrapper').scrollTop($('#wrapper').height());
+	//window.scrollTop = window.scrollHeight;
+//('').attr('scrollTop', $('body').attr('scrollHeight'));
+}
 
 var sirc_update = function() {
 	$.ajax({
@@ -45,6 +55,7 @@ $(document).ready(function() {
 	$('.datetime').each(function() {
 		$(this).html(datetime_format($(this).html()));
 	});
+	scroll_end();
 	$('#form').submit(function() {
 		$(this).ajaxSubmit({
 			success: function(xml) {
