@@ -26,11 +26,22 @@
 	</div>
 	<div data-role="footer" data-position="fixed" data-theme="c">
 		<div id="setting" style="display:none;">
-			<label for="flip-polling">Auto Polling : </label>
-			<select name="polling" id="flip-polling" data-role="slider" data-mini="true">
-				<option value="off">Off</option>
-				<option value="on">On</option>
-			</select>
+			<ul data-role="listview">
+				<li>
+					<label for="flip-polling">Auto Polling : </label>
+					<select name="flip-polling" id="flip-polling" data-role="slider" data-mini="true">
+						<option value="off">Off</option>
+						<option value="on">On</option>
+					</select>
+				</li>
+				<li>
+					<label for="flip-scroll">Scroll To End : </label>
+					<select name="flip-scroll" id="flip-scroll" data-role="slider" data-mini="true">
+						<option value="off">Off</option>
+						<option value="on" selected="selected">On</option>
+					</select>
+				</li>
+			</ul>
 		</div>
 		<table>
 		<tr>

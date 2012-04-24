@@ -17,7 +17,7 @@ var html_encode = function(s) {
 };
 
 var append_log = function(datetime, source, message) {
-	$('ul').append('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + html_encode(message) + '</div></li>');
+	$('#log > ul').append('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + html_encode(message) + '</div></li>');
 };
 
 var add_process = function(xml) {
@@ -32,12 +32,9 @@ var add_process = function(xml) {
 };
 
 var scroll_end = function() {
-	//alert($('#log').height());
+	if($('#flip-scroll').val() == 'off') return;
 	$('body,html,document').animate({scrollTop: $('#log').height()}, 1000);
-	//$('#wrapper').scrollTop($('#wrapper').height());
-	//window.scrollTop = window.scrollHeight;
-//('').attr('scrollTop', $('body').attr('scrollHeight'));
-}
+};
 
 var sirc_update = function() {
 	$.ajax({
