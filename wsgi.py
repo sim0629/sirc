@@ -12,7 +12,6 @@ import jinja2
 import pymongo
 
 PATH = os.path.dirname(os.path.realpath(__file__))
-TARGET = '#sgm'
 sys.path.append(PATH)
 
 import config
@@ -40,12 +39,17 @@ def application(environ, start_response):
 	else:
 		return auth(environ, start_response)
 	
+	db.session.update({'session_id': session['session_id']}, {'$set': {'datetime': datetime.datetime.now()}})
+	parameters = cgi.parse_qs(environ.get('QUERY_STRING'))
+	if 'channel' not in parameters:
+		parameters['channel'] = ['#sgm']
+
 	if path.startswith('/update/'):
-		return update(environ, start_response, session)
+		return update(environ, start_response, session, parameters)
 	elif path.startswith('/send/'):
-		return send(environ, start_response, session)
+		return send(environ, start_response, session, parameters)
 	else:
-		return default(environ, start_response, session)
+		return join(environ, start_response, session, parameters)
 
 def auth(environ, start_response):
 	(url, secret) = request_request_token()
@@ -83,10 +87,11 @@ def callback(environ, start_response):
 	start_response('200 OK', [('Refresh', '0; url=/sgm'), ('Content-Type', 'text/html; charset=utf-8'), ('Set-Cookie', '%s=%s; path=/sgm' % (config.SESSION_ID, session_id))])
 	return ['<a href="/sgm">%s Go</a>' % account]
 
-def update(environ, start_response, session):
+def update(environ, start_response, session, parameters):
 	context = {}
-	logs = db[TARGET].find({'datetime': {"$gt": session['datetime']}, 'sirc_session_id': {"$ne": session['session_id']}}).sort('datetime')
-	db.session.update({'session_id': session['session_id']}, {'$set': {'datetime': datetime.datetime.now()}})
+	channel = parameters['channel'][0].decode('utf-8')
+	db.update.update({'session_id': session['session_id'], 'channel': channel}, {'$set': {'datetime': datetime.datetime.now()}})
+	logs = db[channel].find({'datetime': {"$gt": session['datetime']}, 'sended': {"$ne": session['session_id']}}).sort('datetime')
 	logs = list(logs)
 	for log in logs:
 		log['source'] = remove_invalid_utf8_char(log['source'])
@@ -95,12 +100,16 @@ def update(environ, start_response, session):
 	start_response('200 OK', [('Content-Type', 'text/xml; charset=utf-8')])
 	return [render('result.xml', context)]
 
-def send(environ, start_response, session):
+def send(environ, start_response, session, parameters):
 	context = {}
-	parameters = cgi.parse_qs(environ.get('QUERY_STRING', ''))
-	message = parameters['message'][0].decode('utf-8')
+	channel = parameters['channel'][0].decode('utf-8')
+	if 'message' in parameters:
+		message = parameters['message'][0].decode('utf-8')
+	else:
+		return error(start_response, '404 Not Found', 'No Message')
 	db.send.insert({
 		'account': session['account'],
+		'channel': channel,
 		'message': message,
 		'session_id': session['session_id']
 	})
@@ -112,17 +121,30 @@ def send(environ, start_response, session):
 	start_response('200 OK', [('Content-Type', 'text/xml; charset=utf-8')])
 	return [render('result.xml', context)]
 
-def default(environ, start_response, session):
+def join(environ, start_response, session, parameters):
 	context = {}
-	db[TARGET].remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
-	logs = db[TARGET].find().sort('datetime')
-	db.session.update({'session_id': session['session_id']}, {'$set': {'datetime': datetime.datetime.now()}})
+	channel = parameters['channel'][0].decode('utf-8')
+	db.send.insert({
+		'account': session['account'],
+		'channel': channel,
+		'message': '-*- JOIN -*-',
+		'session_id': 'sirc'
+	})
+	db.update.insert({
+		'session_id': session['session_id'],
+		'channel': channel,
+		'datatime': datetime.datetime.now()
+	})
+	db[channel].remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
+	logs = db[channel].find().sort('datetime')
 	db.session.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
+	db.update.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
 	logs = list(logs)
 	for log in logs:
 		log['source'] = cgi.escape(remove_invalid_utf8_char(log['source']))
 		log['message'] = cgi.escape(remove_invalid_utf8_char(log['message']))
 	context['logs'] = logs
+	context['channel'] = channel
 	start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
 	return [render('chat.html', context)]
 

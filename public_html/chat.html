@@ -3,11 +3,13 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no" />
-	<title>SIRC</title>
+	<title>{{ channel }} - SIRC</title>
 	<script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="/js/jquery.mobile-1.1.0.min.js"></script>
 	<script type="text/javascript" src="/js/jquery.form.js"></script>
+	<script type="text/javascript" src="/js/jquery.ba-hashchange.min.js"></script>
 	<link rel="stylesheet" href="/css/jquery.mobile-1.1.0.min.css" />
+	<script type="text/javascript">var channel = '{{ channel }}';</script>
 	<script type="text/javascript" src="/js/sirc.js"></script>
 	<link rel="stylesheet" href="/css/sirc.css" />
 </head>
@@ -50,6 +52,7 @@
 			</td>
 			<td>
 				<form id="form" action="/sgm/send/" method="get">
+					<input name="channel" type="hidden" value="{{ channel }}" />
 					<input id="input" name="message" type="text" />
 				</form>
 			</td>

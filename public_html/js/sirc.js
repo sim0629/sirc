@@ -40,6 +40,7 @@ var sirc_update = function() {
 	$.ajax({
 		type: 'GET',
 		url: '/sgm/update/',
+		data: 'channel=' + escape(channel),
 		dataType: 'xml',
 		success: function(xml) {
 			add_process(xml);
@@ -78,5 +79,11 @@ $(document).ready(function() {
 		$('#input').attr('disabled', 'disabled');
 		$('#input').addClass('disabled');
 		return false;
+	});
+	if(window.location.hash) {
+		window.location = '/sgm?channel=' + escape(window.location.hash);
+	}
+	$(window).hashchange(function() {
+		window.location = '/sgm?channel=' + escape(window.location.hash);
 	});
 });
