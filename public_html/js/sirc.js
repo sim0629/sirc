@@ -90,6 +90,7 @@ var sirc_join = function() {
 	$('title').html(channel + ' - SIRC');
 	$('h1#channel').html(channel);
 	$('ul#log').empty();
+	last_update = '';
 	sirc_update();
 	return false;
 };
