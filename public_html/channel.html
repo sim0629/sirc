@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+	<title>SIRC</title>
+	<script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.mobile.init.js"></script>
+	<script type="text/javascript" src="/js/jquery.mobile-1.1.0.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.ba-hashchange.min.js"></script>
+	<link rel="stylesheet" href="/css/jquery.mobile-1.1.0.min.css" />
+	<script type="text/javascript" src="/js/sirc.js"></script>
+	<link rel="stylesheet" href="/css/sirc.css" />
+</head>
+<body>
+<div id="wrapper" data-role="page">
+	<div data-role="header" data-position="fixed" data-theme="d">
+		<a id="update" data-role="button" data-icon="refresh" data-iconpos="notext">update</a>
+		<h1 id="channel"></h1>
+		<a id="setting" data-role="button" data-icon="gear" data-iconpos="notext">setting</a>
+		<div id="menu" style="display:none;">
+			<ul data-role="listview">
+				<li>
+					<label for="polling">Auto Polling : </label>
+					<select name="polling" id="polling" data-role="slider" data-mini="true">
+						<option value="off">Off</option>
+						<option value="on">On</option>
+					</select>
+				</li>
+				<li>
+					<label for="scrolling">Scroll To End : </label>
+					<select name="scrolling" id="scrolling" data-role="slider" data-mini="true">
+						<option value="off">Off</option>
+						<option value="on" selected="selected">On</option>
+					</select>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div data-role="content" data-theme="d">
+		<ul id="log" data-role="listview">
+			<li>javascript needed</li>
+		</ul>
+	</div>
+	<div data-role="footer" data-position="fixed" data-theme="d">
+		<form id="send" method="get" onsubmit="return false;">
+			<input id="message" name="message" type="text" />
+		</form>
+	</div>
+</div>
+</body>
+</html>

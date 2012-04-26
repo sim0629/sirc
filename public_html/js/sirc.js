@@ -1,7 +1,27 @@
-/* 졸려 by sgm */
+/* sirc.js */
 
-var auto_polling = function() {
-	return $('#flip-polling').val();
+// Global Variables
+
+var channel = '';
+var last_update = '';
+
+// Utility
+
+var add_process = function(xml) {
+	$('log', xml).each(function(i) {
+		var flag = $(this).find('flag').text();
+		var datetime = $(this).find('datetime').text();
+		var source = $(this).find('source').text();
+		var message = $(this).find('message').text();
+		append_log(flag, datetime, source, message);
+	});
+	scroll(SCROLL_END);
+	$('ul#log').listview('refresh');
+};
+
+var append_log = function(flag, datetime, source, message) {
+	$('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + html_encode(message) + '</div></li>').appendTo($('ul#log')).attr('flag', flag);
+	if(flag != 'send') last_update = datetime;
 };
 
 var datetime_format = function(datetime) {
@@ -16,74 +36,78 @@ var html_encode = function(s) {
 	return s;
 };
 
-var append_log = function(datetime, source, message) {
-	$('#log > ul').append('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + html_encode(message) + '</div></li>');
+var SCROLL_END = -1;
+var scroll = function(pos) {
+	if($('#scrolling').val() == 'off') return;
+	if(pos == SCROLL_END) pos = $('ul#log').height();
+	$('body,html,document').animate({scrollTop: pos}, 1000);
 };
 
-var add_process = function(xml) {
-	$('log', xml).each(function(i) {
-		var datetime = $(this).find('datetime').text();
-		var source = $(this).find('source').text();
-		var message = $(this).find('message').text();
-		append_log(datetime, source, message);
-	});
-	scroll_end();
-	$('#log > ul').listview('refresh');
-};
-
-var scroll_end = function() {
-	if($('#flip-scroll').val() == 'off') return;
-	$('body,html,document').animate({scrollTop: $('#log').height()}, 1000);
-};
+// Ajax Calls
 
 var sirc_update = function() {
 	$.ajax({
 		type: 'GET',
 		url: '/sgm/update/',
-		data: 'channel=' + escape(channel),
+		data: 'channel=' + encodeURIComponent(channel) + '&last_update=' + encodeURIComponent(last_update),
 		dataType: 'xml',
 		success: function(xml) {
 			add_process(xml);
-			$('#button').removeAttr('disabled');
+			$('a#update').removeAttr('disabled');
+			$('ul#log > li[flag="send"]').remove();
 		},
-		error: function() {
-			$('#button').removeAttr('disabled');
+		error: function(xhr) {
+			alert(xhr.responseText);
+			$('a#update').removeAttr('disabled');
 		}
 	});
-	$('#button').attr('disabled', 'disabled');
+	$('a#update').attr('disabled', 'disabled');
 	return false;
 };
 
-var sirc_setting = function() {
-	$('#setting').toggle();
+var sirc_send = function() {
+	$.ajax({
+		type: 'GET',
+		url: '/sgm/send/',
+		data: 'channel=' + encodeURIComponent(channel) + '&message=' + encodeURIComponent($('input#message').val()),
+		dataType: 'xml',
+		success: function(xml) {
+			add_process(xml);
+			$('input#message').val('');
+			$('form#send').removeAttr('disabled');
+		},
+		error: function(xhr) {
+			alert(xhr.responseText);
+			$('form#send').removeAttr('disabled');
+		}
+	});
+	$('form#send').attr('disabled', 'disabled');
+	return false;
 };
 
+var sirc_join = function() {
+	channel = window.location.hash;
+	$('title').html(channel + ' - SIRC');
+	$('h1#channel').html(channel);
+	$('ul#log').empty();
+	sirc_update();
+	return false;
+};
+
+// Main
+
 $(document).ready(function() {
-	$('.datetime').each(function() {
-		$(this).html(datetime_format($(this).html()));
-	});
-	scroll_end();
-	$('#form').submit(function() {
-		$(this).ajaxSubmit({
-			success: function(xml) {
-				add_process(xml);
-				$('#input').val('');
-				$('#input').removeAttr('disabled');
-				$('#input').removeClass('disabled');
-			},
-			error: function() {
-				$('#input').removeAttr('disabled');
-				$('#input').removeClass('disabled');
-			}
-		});
-		$('#input').attr('disabled', 'disabled');
-		$('#input').addClass('disabled');
-		return false;
-	});
-	if(window.location.hash) {
-		window.location = '/sgm?channel=' + escape(window.location.hash);
+	$('a#update').click(function() { return sirc_update(); });
+	$('a#setting').click(function() { $('div#menu').toggle(); return false; });
+	$('form#send').submit(function() { return sirc_send(); });
+	$('input#message').keydown(function (e) { if(e.keyCode == 13) return sirc_send(); });
+	$(window).hashchange(function() { return sirc_join(); });
+
+	if(!window.location.hash) {
+		$('ul#log').html('<li>hash(channel) needed</li>');
+		$('ul#log').listview('refresh');
+		return;
 	}
-	$(window).hashchange(function() {
-		window.location = '/sgm?channel=' + escape(window.location.hash);
-	});
+	sirc_join();
+
 });

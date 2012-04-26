@@ -48,12 +48,11 @@ class SBot(ircbot.SingleServerIRCBot):
 	def on_pubmsg(self, c, e):
 		self._log(e.target(), e.source().split('!')[0], e.arguments()[0])
 
-	def _log(self, target, source, message, sirc_session_id=''):
+	def _log(self, target, source, message):
 		data = {
 			'datetime': datetime.datetime.now(),
 			'source': source,
 			'message': message,
-			'sirc_session_id': sirc_session_id
 		}
 		try:
 			self.db[target].insert(data)
@@ -68,11 +67,10 @@ class SBot(ircbot.SingleServerIRCBot):
 					channel = data['channel'].encode('utf-8')
 					if channel not in self.channels:
 						self.connection.join(channel)
-					if data['session_id'] != 'sirc':
-						account = data['account'].encode('utf-8')
-						message = ('<%s> %s' % (account, data['message'])).encode('utf-8')
-						self.connection.privmsg(channel, message)
-						self._log(channel, self._nickname, message, data['session_id'])
+					account = data['account'].encode('utf-8')
+					message = ('<%s> %s' % (account, data['message'])).encode('utf-8')
+					self.connection.privmsg(channel, message)
+					self._log(channel, self._nickname, message)
 					self.db.send.remove(data)
 			except irclib.ServerNotConnectedError:
 				self.connected = False

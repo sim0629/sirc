@@ -24,36 +24,41 @@ def application(environ, start_response):
 		return error(start_response, '503 Service Unavailable', '점검 중')
 
 	path = environ.get('PATH_INFO', '')
-	
 	if path.startswith('/callback/'):
 		return callback(environ, start_response)
 
 	cookie = Cookie.SimpleCookie()
 	cookie.load(environ.get('HTTP_COOKIE', ''))
 	authorized = False
+	session = None
 	if config.SESSION_ID in cookie:
 		sessions = db.session.find({'session_id': cookie[config.SESSION_ID].value})
-		authorized = not not sessions
-	if authorized:
-		session = sessions[0]
-	else:
+		if sessions.count() > 0:
+			session = sessions[0]
+	if session is None:
 		return auth(environ, start_response)
 	
-	db.session.update({'session_id': session['session_id']}, {'$set': {'datetime': datetime.datetime.now()}})
-	parameters = cgi.parse_qs(environ.get('QUERY_STRING'))
-	if 'channel' not in parameters:
-		parameters['channel'] = ['#sgm']
+	db.session.update({
+		'session_id': session['session_id']
+	}, {
+		'$set': {'datetime': datetime.datetime.now()}
+	})
+	parameters = cgi.parse_qs(environ.get('QUERY_STRING', ''))
 
 	if path.startswith('/update/'):
 		return update(environ, start_response, session, parameters)
 	elif path.startswith('/send/'):
 		return send(environ, start_response, session, parameters)
 	else:
-		return join(environ, start_response, session, parameters)
+		return default(environ, start_response, session, parameters)
 
 def auth(environ, start_response):
 	(url, secret) = request_request_token()
-	start_response('200 OK', [('Refresh', '0; url=%s' % url), ('Content-Type', 'text/html; charset=utf-8'), ('Set-Cookie', '%s=%s' % (config.TOKEN_SECRET, secret))])
+	start_response('200 OK', [
+		('Refresh', '0; url=%s' % url),
+		('Content-Type', 'text/html; charset=utf-8'),
+		('Set-Cookie', '%s=%s; path=/sgm; expires=%s' % (config.TOKEN_SECRET, secret, (datetime.datetime.now() + datetime.timedelta(minutes = 1)).strftime('%a, %d %b %Y %H:%M:%S')))
+	])
 	return ['<a href="%s">SNUCSE Login Required</a>' % url]
 
 def callback(environ, start_response):
@@ -63,20 +68,20 @@ def callback(environ, start_response):
 		oauth_token = parameters['oauth_token'][0]
 		oauth_verifier = parameters['oauth_verifier'][0]
 	else:
-		return error(start_response)
+		return error(start_response, message = 'oauth')
 	cookie = Cookie.SimpleCookie()
 	cookie.load(environ.get('HTTP_COOKIE', ''))
 	if config.TOKEN_SECRET in cookie:
 		oauth_token_secret = cookie[config.TOKEN_SECRET].value
 	else:
-		return error(start_response)
+		return error(start_response, message = 'secret')
 	parameters = cgi.parse_qs(request_access_token(oauth_token, oauth_token_secret, oauth_verifier))
 	if 'account' in parameters: # snucse
 		account = parameters['account'][0]
 	elif 'screen_name' in parameters: # twitter
 		account = parameters['screen_name'][0]
 	else:
-		return error(start_response)
+		return error(start_response, message = 'account')
 	session_id = create_session_id()
 	data = {
 		'session_id': session_id,
@@ -84,14 +89,24 @@ def callback(environ, start_response):
 		'datetime': datetime.datetime.now()
 	}
 	db.session.insert(data)
-	start_response('200 OK', [('Refresh', '0; url=/sgm'), ('Content-Type', 'text/html; charset=utf-8'), ('Set-Cookie', '%s=%s; path=/sgm' % (config.SESSION_ID, session_id))])
+	start_response('200 OK', [
+		('Refresh', '0; url=/sgm'),
+		('Content-Type', 'text/html; charset=utf-8'),
+		('Set-Cookie', '%s=%s; path=/sgm' % (config.SESSION_ID, session_id))
+	])
 	return ['<a href="/sgm">%s Go</a>' % account]
 
 def update(environ, start_response, session, parameters):
 	context = {}
+	if 'channel' not in parameters:
+		return error(start_response, message = 'no channel')
+	last_update = datetime.datetime.now() - datetime.timedelta(1)
+	if 'last_update' in parameters:
+		last_update = datetime.datetime.strptime(parameters['last_update'][0].decode('utf-8'), '%Y-%m-%d %H:%M:%S.%f')
 	channel = parameters['channel'][0].decode('utf-8')
-	db.update.update({'session_id': session['session_id'], 'channel': channel}, {'$set': {'datetime': datetime.datetime.now()}})
-	logs = db[channel].find({'datetime': {"$gt": session['datetime']}, 'sended': {"$ne": session['session_id']}}).sort('datetime')
+	logs = db[channel].find({
+		'datetime': {"$gt": last_update},
+	}).sort('datetime')
 	logs = list(logs)
 	for log in logs:
 		log['source'] = remove_invalid_utf8_char(log['source'])
@@ -102,18 +117,22 @@ def update(environ, start_response, session, parameters):
 
 def send(environ, start_response, session, parameters):
 	context = {}
+	if 'channel' not in parameters:
+		return error(start_response, message = 'no channel')
+	if 'message' not in parameters:
+		return error(start_response, message = 'no message')
 	channel = parameters['channel'][0].decode('utf-8')
-	if 'message' in parameters:
-		message = parameters['message'][0].decode('utf-8')
-	else:
-		return error(start_response, '404 Not Found', 'No Message')
+	message = parameters['message'][0].decode('utf-8')
 	db.send.insert({
 		'account': session['account'],
 		'channel': channel,
-		'message': message,
-		'session_id': session['session_id']
+		'message': message
+	})
+	db[channel].remove({
+		'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}
 	})
 	context['logs'] = [{
+		'flag': 'send',
 		'source': config.BOT_NAME,
 		'message': '<%s> %s' % (remove_invalid_utf8_char(session['account']), remove_invalid_utf8_char(message)),
 		'datetime': datetime.datetime.now()
@@ -121,37 +140,16 @@ def send(environ, start_response, session, parameters):
 	start_response('200 OK', [('Content-Type', 'text/xml; charset=utf-8')])
 	return [render('result.xml', context)]
 
-def join(environ, start_response, session, parameters):
+def default(environ, start_response, session, parameters):
 	context = {}
-	channel = parameters['channel'][0].decode('utf-8')
-	db.send.insert({
-		'account': session['account'],
-		'channel': channel,
-		'message': '-*- JOIN -*-',
-		'session_id': 'sirc'
-	})
-	db.update.insert({
-		'session_id': session['session_id'],
-		'channel': channel,
-		'datatime': datetime.datetime.now()
-	})
-	db[channel].remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
-	logs = db[channel].find().sort('datetime')
 	db.session.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
-	db.update.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
-	logs = list(logs)
-	for log in logs:
-		log['source'] = cgi.escape(remove_invalid_utf8_char(log['source']))
-		log['message'] = cgi.escape(remove_invalid_utf8_char(log['message']))
-	context['logs'] = logs
-	context['channel'] = channel
 	start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-	return [render('chat.html', context)]
+	return [render('channel.html', context)]
 
 def render(template, context):
 	return jinja2.Environment(loader=jinja2.FileSystemLoader(PATH + '/public_html')).get_template(template).render(context).encode('utf-8')
 
-def error(start_response, code='404 Not Found', message='error'):
+def error(start_response, code = '404 Not Found', message = 'error'):
 	context = {}
 	context['message'] = message.decode('utf-8')
 	start_response(code, [('Content-Type', 'text/html; charset=utf-8')])
