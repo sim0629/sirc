@@ -66,6 +66,8 @@ var sirc_update = function() {
 };
 
 var sirc_send = function() {
+	var message = $('input#message').val();
+	if(message == '') return false;
 	$.ajax({
 		type: 'GET',
 		url: '/sgm/send/',
@@ -86,6 +88,7 @@ var sirc_send = function() {
 };
 
 var sirc_join = function() {
+	if(!window.location.hash) return;
 	channel = window.location.hash;
 	$('title').html(channel + ' - SIRC');
 	$('h1#channel').html(channel);
@@ -103,12 +106,5 @@ $(document).ready(function() {
 	$('form#send').submit(function() { return sirc_send(); });
 	$('input#message').keydown(function (e) { if(e.keyCode == 13) return sirc_send(); });
 	$(window).hashchange(function() { return sirc_join(); });
-
-	if(!window.location.hash) {
-		$('ul#log').html('<li>hash(channel) needed</li>');
-		$('ul#log').listview('refresh');
-		return;
-	}
 	sirc_join();
-
 });

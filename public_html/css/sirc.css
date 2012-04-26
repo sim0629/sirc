@@ -1,9 +1,9 @@
 @charset "utf-8";
 
-div.datetime { font-size:8px; font-weight:normal; text-align:center; float:left; letter-spacing:-1px; line-height:1; }
-div.source { font-weight:normal; float:left; margin:0px 5px; }
+div.datetime { font-size:8px; text-align:center; float:left; letter-spacing:-1px; line-height:1; }
+div.source { float:left; margin:0px 5px; }
 span.nick { font-weight:bold; }
-div.message { word-wrap:break-word; font-weight:normal; }
-ul#log li { padding:5px !important; border-color:#efefef; }
+div.message { word-wrap:break-word; }
+ul#log li { padding:5px !important; font-weight:normal; border-color:#efefef; }
 label { float:left; padding-top:7px; }
 
