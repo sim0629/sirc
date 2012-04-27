@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import datetime
+import gevent
 import os
 import re
 import sys
@@ -103,7 +104,7 @@ def update(environ, start_response, session, parameters):
 	last_update = datetime.datetime.now() - datetime.timedelta(1)
 	if 'last_update' in parameters:
 		last_update = datetime.datetime.strptime(parameters['last_update'][0].decode('utf-8'), '%Y-%m-%d %H:%M:%S.%f')
-	channel = parameters['channel'][0].decode('utf-8')
+	channel = parameters['channel'][0].decode('utf-8').lower()
 	logs = db[channel].find({
 		'datetime': {"$gt": last_update},
 	}).sort('datetime')
@@ -121,7 +122,7 @@ def send(environ, start_response, session, parameters):
 		return error(start_response, message = 'no channel')
 	if 'message' not in parameters:
 		return error(start_response, message = 'no message')
-	channel = parameters['channel'][0].decode('utf-8')
+	channel = parameters['channel'][0].decode('utf-8').lower()
 	message = parameters['message'][0].decode('utf-8')
 	db.send.insert({
 		'account': session['account'],

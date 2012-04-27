@@ -25,6 +25,9 @@ class SBot(ircbot.SingleServerIRCBot):
 	
 	def on_welcome(self, c, e):
 		self.connected = True
+		for target in self.db.collection_names():
+			if target.startswith('#'):
+				c.join(target)
 
 	def on_nick(self, c, e):
 		before = e.source().split('!')[0]
@@ -54,7 +57,7 @@ class SBot(ircbot.SingleServerIRCBot):
 		self._log(e.target(), '!', '<%s> was kicked by <%s> because of "%s".' % (nick_m, nick_s, because_of))
 	
 	def on_pubmsg(self, c, e):
-		self._log(e.target(), e.source().split('!')[0], e.arguments()[0])
+		self._log(e.target().lower(), e.source().split('!')[0], e.arguments()[0])
 
 	def _log(self, target, source, message):
 		data = {
@@ -71,7 +74,7 @@ class SBot(ircbot.SingleServerIRCBot):
 		if self.connected:
 			try:
 				for data in self.db.send.find():
-					channel = data['channel'].encode('utf-8')
+					channel = data['channel'].encode('utf-8').lower()
 					if channel not in self.channels:
 						self.connection.join(channel)
 					account = data['account'].encode('utf-8')
