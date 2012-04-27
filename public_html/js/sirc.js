@@ -46,6 +46,7 @@ var scroll = function(pos) {
 // Ajax Calls
 
 var sirc_update = function() {
+	$.mobile.showPageLoadingMsg();
 	$.ajax({
 		type: 'GET',
 		url: '/sgm/update/',
@@ -55,10 +56,12 @@ var sirc_update = function() {
 			add_process(xml);
 			$('a#update').removeAttr('disabled');
 			$('ul#log > li[flag="send"]').remove();
+			$.mobile.hidePageLoadingMsg();
 		},
 		error: function(xhr) {
 			alert(xhr.responseText);
 			$('a#update').removeAttr('disabled');
+			$.mobile.hidePageLoadingMsg();
 		}
 	});
 	$('a#update').attr('disabled', 'disabled');
