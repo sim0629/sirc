@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import datetime
-import gevent
+import gevent # not used yet
 import os
 import re
 import sys
@@ -48,6 +48,8 @@ def application(environ, start_response):
 
 	if path.startswith('/update/'):
 		return update(environ, start_response, session, parameters)
+	elif path.startswith('/downdate/'):
+		return downdate(environ, start_response, session, parameters)
 	elif path.startswith('/send/'):
 		return send(environ, start_response, session, parameters)
 	else:
@@ -101,13 +103,36 @@ def update(environ, start_response, session, parameters):
 	context = {}
 	if 'channel' not in parameters:
 		return error(start_response, message = 'no channel')
-	last_update = datetime.datetime.now() - datetime.timedelta(1)
+	last_update = datetime.datetime.now()
 	if 'last_update' in parameters:
-		last_update = datetime.datetime.strptime(parameters['last_update'][0].decode('utf-8'), '%Y-%m-%d %H:%M:%S.%f')
+		last_update = parse_datetime(parameters['last_update'][0].decode('utf-8'))
 	channel = parameters['channel'][0].decode('utf-8').lower()
 	logs = db[channel].find({
 		'datetime': {"$gt": last_update},
-	}).sort('datetime')
+	}, sort = [
+		('datetime', pymongo.ASCENDING)
+	])
+	logs = list(logs)
+	for log in logs:
+		log['source'] = remove_invalid_utf8_char(log['source'])
+		log['message'] = remove_invalid_utf8_char(log['message'])
+	context['logs'] = logs
+	start_response('200 OK', [('Content-Type', 'text/xml; charset=utf-8')])
+	return [render('result.xml', context)]
+
+def downdate(environ, start_response, session, parameters):
+	context = {}
+	if 'channel' not in parameters:
+		return error(start_response, message = 'no channel')
+	last_downdate = datetime.datetime.now()
+	if 'last_downdate' in parameters:
+		last_downdate = parse_datetime(parameters['last_downdate'][0].decode('utf-8'))
+	channel = parameters['channel'][0].decode('utf-8').lower()
+	logs = db[channel].find({
+		'datetime': {"$lt": last_downdate},
+	}, limit = config.N_LINES, sort = [
+		('datetime', pymongo.DESCENDING)
+	])
 	logs = list(logs)
 	for log in logs:
 		log['source'] = remove_invalid_utf8_char(log['source'])
@@ -133,7 +158,6 @@ def send(environ, start_response, session, parameters):
 		'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}
 	})
 	context['logs'] = [{
-		'flag': 'send',
 		'source': config.BOT_NAME,
 		'message': '<%s> %s' % (remove_invalid_utf8_char(session['account']), remove_invalid_utf8_char(message)),
 		'datetime': datetime.datetime.now()
@@ -161,6 +185,12 @@ def create_session_id(): # TODO: 중복 체크
 	import random
 	bag = string.ascii_uppercase + string.ascii_lowercase + string.digits
 	return ''.join(random.sample(bag * 24, 24))
+
+def parse_datetime(s):
+	if '.' in s:
+		return datetime.datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f')
+	else:
+		return datetime.datetime.strptime(s, '%Y-%m-%d %H:%M:%S')
 
 def request_request_token():
 	import oauth2

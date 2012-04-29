@@ -2,7 +2,6 @@
 <result>
 	{% for log in logs %}
 		<log>
-			<flag><![CDATA[{{ log.flag }}]]></flag>
 			<datetime><![CDATA[{{ log.datetime }}]]></datetime>
 			<source><![CDATA[{{ log.source }}]]></source>
 			<message><![CDATA[{{ log.message }}]]></message>
