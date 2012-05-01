@@ -16,8 +16,6 @@ var add_process = function(xml, flag) {
 		append_log(flag, datetime, source, message);
 	});
 	$('ul#log').listview('refresh');
-	if(flag != 'downdate')
-		scroll(SCROLL_END, 1000);
 };
 
 var append_log = function(flag, datetime, source, message) {
@@ -29,6 +27,8 @@ var append_log = function(flag, datetime, source, message) {
 		element.appendTo($('ul#log')).attr('flag', flag);
 		if(flag != 'send') last_update = datetime;
 	}
+	if(flag != 'downdate')
+		scroll(SCROLL_END, 200);
 };
 
 var datetime_format = function(datetime) {
@@ -61,35 +61,39 @@ var sirc_update = function() {
 	if(channel == '') return false;
 	$.ajax({
 		type: 'GET',
-		url: '/sgm/update/',
+		url: '/update/',
 		data: 'channel=' + encodeURIComponent(channel) + '&last_update=' + encodeURIComponent(last_update),
 		dataType: 'xml',
 		success: function(xml) {
 			add_process(xml, 'update');
 			$('ul#log > li[flag="send"]').remove();
+			setTimeout("sirc_update();", 500);
 		},
 		error: function(xhr) {
-			alert('update: ' + xhr.responseText);
+			//alert('update: ' + xhr.responseText);
+			setTimeout("sirc_update();", 500);
 		}
 	});
 	return false;
 };
 
-var sirc_downdate = function() {
+var sirc_downdate = function(callback) {
 	if(channel == '') return false;
 	$.mobile.showPageLoadingMsg();
 	$.ajax({
 		type: 'GET',
-		url: '/sgm/downdate/',
+		url: '/downdate/',
 		data: 'channel=' + encodeURIComponent(channel) + '&last_downdate=' + encodeURIComponent(last_downdate),
 		dataType: 'xml',
 		success: function(xml) {
 			add_process(xml, 'downdate');
-			$('<li>more</li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
+			$('<li><a>more</a></li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
+			$('ul#log').listview('refresh');
+			if(callback) callback();
 			$.mobile.hidePageLoadingMsg();
 		},
 		error: function(xhr) {
-			alert('downdate: ' + xhr.responseText);
+			//alert('downdate: ' + xhr.responseText);
 			$.mobile.hidePageLoadingMsg();
 		}
 	});
@@ -102,7 +106,7 @@ var sirc_send = function() {
 	if(message == '') return false;
 	$.ajax({
 		type: 'GET',
-		url: '/sgm/send/',
+		url: '/send/',
 		data: 'channel=' + encodeURIComponent(channel) + '&message=' + encodeURIComponent($('input#message').val()),
 		dataType: 'xml',
 		success: function(xml) {
@@ -111,7 +115,7 @@ var sirc_send = function() {
 			$('form#send').removeAttr('disabled');
 		},
 		error: function(xhr) {
-			alert('send: ' + xhr.responseText);
+			//alert('send: ' + xhr.responseText);
 			$('form#send').removeAttr('disabled');
 		}
 	});
@@ -127,15 +131,14 @@ var sirc_join = function() {
 	$('h1#channel').html(channel);
 	$('ul#log').empty();
 	last_update = last_downdate = datetime_now();
-	sirc_downdate();
-	sirc_update();
+	sirc_downdate(function() { scroll(SCROLL_END, 1000); });
+	setTimeout("sirc_update();", 500);
 	return false;
 };
 
 // Main
 
 $(document).ready(function() {
-	$('a#update').click(function() { return sirc_update(); });
 	$('a#setting').click(function() { $('div#menu').toggle(); return false; });
 	$('form#send').submit(function() { return sirc_send(); });
 	$('input#message').keydown(function (e) { if(e.keyCode == 13) return sirc_send(); });

@@ -16,18 +16,10 @@
 <a id="dummy" name=""></a>
 <div id="wrapper" data-role="page">
 	<div data-role="header" data-position="fixed" data-theme="d">
-		<a id="update" data-role="button" data-icon="forward" data-iconpos="notext">update</a>
 		<h1 id="channel">How to use SIRC</h1>
 		<a id="setting" data-role="button" data-icon="gear" data-iconpos="notext">setting</a>
 		<div id="menu" style="display:none;">
 			<ul data-role="listview">
-				<li>
-					<label for="polling">Auto Polling : </label>
-					<select name="polling" id="polling" data-role="slider" data-mini="true">
-						<option value="off">Off</option>
-						<option value="on">On</option>
-					</select>
-				</li>
 				<li>
 					<label for="scrolling">Scroll To End : </label>
 					<select name="scrolling" id="scrolling" data-role="slider" data-mini="true">
@@ -41,7 +33,7 @@
 	<div data-role="content" data-theme="d">
 		<ul id="log" data-role="listview">
 			<li>Append the channel name to URL (as hash fragment) where you want to join.</li>
-			<li>(Ex) sirc.domain.com/sgm<strong>#snucse12</strong></li>
+			<li>(Ex) sirc.domain.com/<strong>#snucse12</strong></li>
 			<li>That's all.</li>
 			<li>Enjoy your <strong>irc</strong>ing!</li>
 			<li>https://github.com/sim0629/sirc/wiki</li>

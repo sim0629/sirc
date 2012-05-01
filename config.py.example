@@ -1,6 +1,8 @@
 # coding: utf-8
 
-OPEN = True
+# SIRC
+N_LINES = 32
+PORT = 2354
 
 # IRC
 SERVER = '115.92.130.250'
@@ -13,7 +15,7 @@ CONSUMER_SECRET = ''
 
 # OAuth URLs
 REQUEST_URL = 'https://www.snucse.org/app/RequestToken'
-CALLBACK_URL = 'http://sirc.neria.kr:8000/sgm/callback/'
+CALLBACK_URL = 'http://neria.kr:%d/sgm/callback/' % PORT
 AUTHORIZE_URL = 'https://www.snucse.org/app/Authorize'
 ACCESS_URL = 'https://www.snucse.org/app/AccessToken'
 
