@@ -15,7 +15,7 @@ CONSUMER_SECRET = ''
 
 # OAuth URLs
 REQUEST_URL = 'https://www.snucse.org/app/RequestToken'
-CALLBACK_URL = 'http://neria.kr:%d/callback/' % SIRC_PORT
+CALLBACK_URL = 'http://sirc.neria.kr/callback/'
 AUTHORIZE_URL = 'https://www.snucse.org/app/Authorize'
 ACCESS_URL = 'https://www.snucse.org/app/AccessToken'
 

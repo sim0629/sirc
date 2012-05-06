@@ -170,9 +170,6 @@ def send(environ, start_response, session, parameters):
 		'channel': channel,
 		'message': message
 	})
-	db[channel].remove({
-		'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}
-	})
 	context['logs'] = [{
 		'source': config.BOT_NAME,
 		'message': '<%s> %s' % (remove_invalid_utf8_char(session['account']), remove_invalid_utf8_char(message)),
