@@ -9,6 +9,7 @@ var last_downdate = '';
 // Utility
 
 var add_process = function(xml, flag) {
+	if($('result', xml).attr('channel') != channel) return;
 	$('log', xml).each(function(i) {
 		var datetime = $(this).find('datetime').text();
 		var source = $(this).find('source').text();
@@ -87,7 +88,8 @@ var sirc_downdate = function(callback) {
 		dataType: 'xml',
 		success: function(xml) {
 			add_process(xml, 'downdate');
-			$('<li><a>more</a></li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
+			if($('log', xml).length > 0)
+				$('<li><a>more</a></li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
 			$('ul#log').listview('refresh');
 			if(callback) callback();
 			$.mobile.hidePageLoadingMsg();
@@ -123,7 +125,7 @@ var sirc_send = function() {
 	return false;
 };
 
-var sirc_join = function() {
+var sirc_join = function(init) {
 	if(!window.location.hash) return;
 	channel = window.location.hash;
 	$('a#dummy').attr('name', channel.substr(1))
@@ -132,7 +134,7 @@ var sirc_join = function() {
 	$('ul#log').empty();
 	last_update = last_downdate = datetime_now();
 	sirc_downdate(function() { scroll(SCROLL_END, 1000); });
-	setTimeout("sirc_update();", 500);
+	if(init) setTimeout("sirc_update();", 500);
 	return false;
 };
 
@@ -142,6 +144,6 @@ $(document).ready(function() {
 	$('a#setting').click(function() { $('div#menu').toggle(); return false; });
 	$('form#send').submit(function() { return sirc_send(); });
 	$('input#message').keydown(function (e) { if(e.keyCode == 13) return sirc_send(); });
-	$(window).hashchange(function() { return sirc_join(); });
-	sirc_join();
+	$(window).hashchange(function() { return sirc_join(false); });
+	sirc_join(true);
 });

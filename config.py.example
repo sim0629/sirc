@@ -5,7 +5,7 @@ N_LINES = 32
 SIRC_PORT = 2354
 
 # IRC
-SERVER = '115.92.130.250'
+SERVER = 'irc.uriirc.org'
 PORT = 16667
 BOT_NAME = 's'
 

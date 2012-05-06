@@ -108,6 +108,7 @@ def update(environ, start_response, session, parameters):
 	if 'last_update' in parameters:
 		last_update = parse_datetime(parameters['last_update'][0].decode('utf-8'))
 	channel = parameters['channel'][0].decode('utf-8').lower()
+	context['channel'] = channel
 	logs = []
 	for i in xrange(30):
 		logs = list(db[channel].find({
@@ -134,6 +135,7 @@ def downdate(environ, start_response, session, parameters):
 	if 'last_downdate' in parameters:
 		last_downdate = parse_datetime(parameters['last_downdate'][0].decode('utf-8'))
 	channel = parameters['channel'][0].decode('utf-8').lower()
+	context['channel'] = channel
 	logs = db[channel].find({
 		'datetime': {"$lt": last_downdate},
 	}, limit = config.N_LINES, sort = [
@@ -172,7 +174,7 @@ def send(environ, start_response, session, parameters):
 	return [render('result.xml', context)]
 
 def default(environ, start_response, session, parameters):
-	context = {}
+	context = {'account': session['account']}
 	db.session.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
 	start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
 	return [render('channel.html', context)]
