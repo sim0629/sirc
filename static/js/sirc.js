@@ -5,11 +5,11 @@
 var channel = '';
 var last_update = '';
 var last_downdate = '';
+var transition_id = 0;
 
 // Utility
 
 var add_process = function(xml, flag) {
-	if($('result', xml).attr('channel') != channel) return;
 	$('log', xml).each(function(i) {
 		var datetime = $(this).find('datetime').text();
 		var source = $(this).find('source').text();
@@ -63,12 +63,14 @@ var sirc_update = function() {
 	$.ajax({
 		type: 'GET',
 		url: '/update/',
-		data: 'channel=' + encodeURIComponent(channel) + '&last_update=' + encodeURIComponent(last_update),
+		data: 'channel=' + encodeURIComponent(channel) + '&last_update=' + encodeURIComponent(last_update) + '&transition_id=' + transition_id,
 		dataType: 'xml',
 		success: function(xml) {
-			add_process(xml, 'update');
-			$('ul#log > li[flag="send"]').remove();
-			setTimeout("sirc_update();", 500);
+			if($('result', xml).attr('transition_id') == transition_id) {
+				add_process(xml, 'update');
+				$('ul#log > li[flag="send"]').remove();
+				setTimeout("sirc_update();", 500);
+			}
 		},
 		error: function(xhr) {
 			//alert('update: ' + xhr.responseText);
@@ -84,15 +86,17 @@ var sirc_downdate = function(callback) {
 	$.ajax({
 		type: 'GET',
 		url: '/downdate/',
-		data: 'channel=' + encodeURIComponent(channel) + '&last_downdate=' + encodeURIComponent(last_downdate),
+		data: 'channel=' + encodeURIComponent(channel) + '&last_downdate=' + encodeURIComponent(last_downdate) + '&transition_id=' + transition_id,
 		dataType: 'xml',
 		success: function(xml) {
-			add_process(xml, 'downdate');
-			if($('log', xml).length > 0)
-				$('<li><a>more</a></li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
-			$('ul#log').listview('refresh');
-			if(callback) callback();
-			$.mobile.hidePageLoadingMsg();
+			if($('result', xml).attr('transition_id') == transition_id) {
+				add_process(xml, 'downdate');
+				if($('log', xml).length > 0)
+					$('<li><a>more</a></li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
+				$('ul#log').listview('refresh');
+				if(callback) callback();
+				$.mobile.hidePageLoadingMsg();
+			}
 		},
 		error: function(xhr) {
 			//alert('downdate: ' + xhr.responseText);
@@ -125,7 +129,7 @@ var sirc_send = function() {
 	return false;
 };
 
-var sirc_join = function(init) {
+var sirc_join = function() {
 	if(!window.location.hash) return;
 	channel = window.location.hash;
 	$('a#dummy').attr('name', channel.substr(1))
@@ -134,7 +138,7 @@ var sirc_join = function(init) {
 	$('ul#log').empty();
 	last_update = last_downdate = datetime_now();
 	sirc_downdate(function() { scroll(SCROLL_END, 1000); });
-	if(init) setTimeout("sirc_update();", 500);
+	setTimeout("sirc_update();", 500);
 	return false;
 };
 
@@ -144,6 +148,6 @@ $(document).ready(function() {
 	$('a#setting').click(function() { $('div#menu').toggle(); return false; });
 	$('form#send').submit(function() { return sirc_send(); });
 	$('input#message').keydown(function (e) { if(e.keyCode == 13) return sirc_send(); });
-	$(window).hashchange(function() { return sirc_join(false); });
-	sirc_join(true);
+	$(window).hashchange(function() { transition_id++; return sirc_join(); });
+	sirc_join();
 });

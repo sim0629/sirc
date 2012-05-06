@@ -107,8 +107,12 @@ def update(environ, start_response, session, parameters):
 	last_update = datetime.datetime.now()
 	if 'last_update' in parameters:
 		last_update = parse_datetime(parameters['last_update'][0].decode('utf-8'))
+	if 'transition_id' not in parameters:
+		return error(start_response, message = 'no transition_id')
 	channel = parameters['channel'][0].decode('utf-8').lower()
+	transition_id = parameters['transition_id'][0].decode('utf-8')
 	context['channel'] = channel
+	context['transition_id'] = transition_id
 	logs = []
 	for i in xrange(30):
 		logs = list(db[channel].find({
@@ -134,8 +138,12 @@ def downdate(environ, start_response, session, parameters):
 	last_downdate = datetime.datetime.now()
 	if 'last_downdate' in parameters:
 		last_downdate = parse_datetime(parameters['last_downdate'][0].decode('utf-8'))
+	if 'transition_id' not in parameters:
+		return error(start_response, message = 'no transition_id')
 	channel = parameters['channel'][0].decode('utf-8').lower()
+	transition_id = parameters['transition_id'][0].decode('utf-8')
 	context['channel'] = channel
+	context['transition_id'] = transition_id
 	logs = db[channel].find({
 		'datetime': {"$lt": last_downdate},
 	}, limit = config.N_LINES, sort = [
