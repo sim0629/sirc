@@ -9,16 +9,26 @@ SERVER = 'irc.uriirc.org'
 PORT = 16667
 BOT_NAME = 's'
 
-# OAuth 
-CONSUMER_KEY = ''
-CONSUMER_SECRET = ''
-
-# OAuth URLs
-REQUEST_URL = 'https://www.snucse.org/app/RequestToken'
-CALLBACK_URL = 'http://sirc.neria.kr/callback/'
-AUTHORIZE_URL = 'https://www.snucse.org/app/Authorize'
-ACCESS_URL = 'https://www.snucse.org/app/AccessToken'
-
 # Cookie keys
 SESSION_ID = 'SIRC_SESSION_ID'
 TOKEN_SECRET = 'OAUTH_TOKEN_SECRET'
+OAUTH_PROVIDER = 'OAUTH_PROVIDER'
+
+# OAuth
+OAUTH = {
+	'snucse': {
+		'CONSUMER_KEY': '',
+		'CONSUMER_SECRET': '',
+		'REQUEST_URL': 'https://www.snucse.org/app/RequestToken',
+		'AUTHORIZE_URL': 'https://www.snucse.org/app/Authorize',
+		'ACCESS_URL': 'https://www.snucse.org/app/AccessToken'
+	},
+	'twitter': {
+		'CONSUMER_KEY': '',
+		'CONSUMER_SECRET': '',
+		'REQUEST_URL': 'https://api.twitter.com/oauth/request_token',
+		'AUTHORIZE_URL': 'https://api.twitter.com/oauth/authenticate',
+		'ACCESS_URL': 'https://api.twitter.com/oauth/access_token'
+	}
+}
+CALLBACK_URL = 'http://sirc.neria.kr/callback/'
