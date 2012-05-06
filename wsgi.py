@@ -18,17 +18,25 @@ sys.path.append(PATH)
 
 import config
 
-
 con = pymongo.Connection()
 db = con.sirc_db
 
 def application(environ, start_response):
-	path = environ.get('PATH_INFO', '')
-	if path.startswith('/callback/'):
-		return callback(environ, start_response)
-
 	cookie = Cookie.SimpleCookie()
 	cookie.load(environ.get('HTTP_COOKIE', ''))
+	
+	oauth_config = None
+	if config.OAUTH_PROVIDER in cookie:
+		oauth_provider = cookie[config.OAUTH_PROVIDER].value
+		if oauth_provider in config.OAUTH:
+			oauth_config = config.OAUTH[oauth_provider]
+
+	path = environ.get('PATH_INFO', '')
+	if path.startswith('/callback/'):
+		if oauth_config is None:
+			return error(start_response, message = 'callback')
+		return callback(environ, start_response, oauth_config, oauth_provider)
+
 	authorized = False
 	session = None
 	if config.SESSION_ID in cookie:
@@ -36,7 +44,10 @@ def application(environ, start_response):
 		if sessions.count() > 0:
 			session = sessions[0]
 	if session is None:
-		return auth(environ, start_response)
+		if oauth_config is None:
+			return preauth(environ, start_response)
+		else:
+			return auth(environ, start_response, oauth_config)
 	
 	db.session.update({
 		'session_id': session['session_id']
@@ -56,16 +67,25 @@ def application(environ, start_response):
 	else:
 		return static(environ, start_response)
 
-def auth(environ, start_response):
-	(url, secret) = request_request_token()
+def preauth(environ, start_response):
+	context = {}
+	start_response('200 OK', [
+		('Content-Type', 'text/html; charset=utf-8')
+	])
+	context['OAUTH_PROVIDER'] = config.OAUTH_PROVIDER
+	context['oauth'] = config.OAUTH.keys()
+	return [render('preauth.html', context)]
+
+def auth(environ, start_response, oauth_config):
+	(url, secret) = request_request_token(oauth_config)
 	start_response('200 OK', [
 		('Refresh', '0; url=%s' % url),
 		('Content-Type', 'text/html; charset=utf-8'),
-		('Set-Cookie', '%s=%s; path=/; expires=%s' % (config.TOKEN_SECRET, secret, (datetime.datetime.now() + datetime.timedelta(minutes = 10)).strftime('%a, %d %b %Y %H:%M:%S')))
+		('Set-Cookie', '%s=%s; path=/' % (config.TOKEN_SECRET, secret))
 	])
-	return ['<a href="%s">SNUCSE Login Required</a>' % url]
+	return ['<a href="%s">Login Required</a>' % url]
 
-def callback(environ, start_response):
+def callback(environ, start_response, oauth_config, oauth_provider):
 	parameters = cgi.parse_qs(environ.get('QUERY_STRING', ''))
 	if 'oauth_token' in parameters and \
 		'oauth_verifier' in parameters:
@@ -79,17 +99,18 @@ def callback(environ, start_response):
 		oauth_token_secret = cookie[config.TOKEN_SECRET].value
 	else:
 		return error(start_response, message = 'secret')
-	parameters = cgi.parse_qs(request_access_token(oauth_token, oauth_token_secret, oauth_verifier))
-	if 'account' in parameters: # snucse
+	parameters = cgi.parse_qs(request_access_token(oauth_token, oauth_token_secret, oauth_verifier, oauth_config))
+	if oauth_provider == 'snucse' and 'account' in parameters:
 		account = parameters['account'][0]
-	elif 'screen_name' in parameters: # twitter
+	elif oauth_provider == 'twitter' and 'screen_name' in parameters:
 		account = parameters['screen_name'][0]
 	else:
 		return error(start_response, message = 'account')
 	session_id = create_session_id()
+	shown_account = '%s%s' % (('@' if oauth_provider == 'twitter' else '+'), account)
 	data = {
 		'session_id': session_id,
-		'account': account,
+		'account': shown_account,
 		'datetime': datetime.datetime.now()
 	}
 	db.session.insert(data)
@@ -220,47 +241,34 @@ def parse_datetime(s):
 	else:
 		return datetime.datetime.strptime(s, '%Y-%m-%d %H:%M:%S')
 
-def request_request_token():
+def request_request_token(oauth_config):
 	import oauth2
 	import httplib2
-	consumer = oauth2.Consumer(config.CONSUMER_KEY, config.CONSUMER_SECRET)
-	request = oauth2.Request.from_consumer_and_token(consumer, http_url=config.REQUEST_URL, parameters={'oauth_callback': config.CALLBACK_URL})
+	consumer = oauth2.Consumer(oauth_config['CONSUMER_KEY'], oauth_config['CONSUMER_SECRET'])
+	request = oauth2.Request.from_consumer_and_token(consumer, http_url=oauth_config['REQUEST_URL'], parameters={'oauth_callback': config.CALLBACK_URL})
 	request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, None)
 	response = httplib2.Http().request(request.to_url())
 	if response[0]['status'] != '200':
 		raise Exception(response)
 	token = oauth2.Token.from_string(response[1])
-	return ('%s?oauth_token=%s' % (config.AUTHORIZE_URL, token.key), token.secret)
+	return ('%s?oauth_token=%s' % (oauth_config['AUTHORIZE_URL'], token.key), token.secret)
 
-def request_access_token(oauth_token, oauth_token_secret, oauth_verifier):
+def request_access_token(oauth_token, oauth_token_secret, oauth_verifier, oauth_config):
 	import oauth2
 	import httplib2
 	token = oauth2.Token(oauth_token, oauth_token_secret)
 	token.set_verifier(oauth_verifier)
-	consumer = oauth2.Consumer(config.CONSUMER_KEY, config.CONSUMER_SECRET)
-	request = oauth2.Request.from_consumer_and_token(consumer, token=token, http_url=config.ACCESS_URL)
+	consumer = oauth2.Consumer(oauth_config['CONSUMER_KEY'], oauth_config['CONSUMER_SECRET'])
+	request = oauth2.Request.from_consumer_and_token(consumer, token=token, http_url=oauth_config['ACCESS_URL'])
 	request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, token)
 	response = httplib2.Http().request(request.to_url())
 	if response[0]['status'] != '200':
 		raise Exception(response)
 	return response[1]
 
-#pattern = re.compile("((?:[\x00-\x7F]|[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3})+)|([\x80-\xBF])|([\xC0-\xFF])", re.UNICODE)
 pattern = re.compile("[\x00-\x1F]|[\x80-\x9F]", re.UNICODE)
 def remove_invalid_utf8_char(s):
-	#return unicode(s.encode('utf-8'), 'utf-8', 'replace')
 	return pattern.sub(u'�', s)
-	'''
-	matches = pattern.match(s)
-	if matches is None:
-		return s
-	if len(matches.group(1)) != 0:
-		return matches.group(1)
-	elif len(matches.group(2)) != 0:
-		return "\xC2" + matches.group(2)
-	else:
-		return "\xC3" + chr(ord(matches.group(3)) - 64)
-	'''
 
 if __name__ == '__main__':
 	server = gevent.pywsgi.WSGIServer(('0.0.0.0', config.SIRC_PORT), application)

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>SIRC</title>
+	<script type="text/javascript">
+	<!--
+		var auth = function(cp) {
+			document.cookie = '{{ OAUTH_PROVIDER }}=' + cp + '; path=/';
+			return true;
+		}
+	//-->
+	</script>
+</head>
+<body>
+	<p>Select a content provider to auth.</p>
+	<ul>
+		{% for cp in oauth %}
+			<li><a href="/" onclick="return auth('{{ cp }}');">{{ cp }}</a></li>
+		{% endfor %}	
+	</ul>
+</body>
+</html>
