@@ -62,6 +62,8 @@ def application(environ, start_response):
 		return downdate(environ, start_response, session, parameters)
 	elif path.startswith('/send/'):
 		return send(environ, start_response, session, parameters)
+	elif path.startswith('/delete/'):
+		return delete(environ, start_response, session, parameters)
 	elif path == '/':
 		return default(environ, start_response, session, parameters)
 	else:
@@ -132,6 +134,8 @@ def update(environ, start_response, session, parameters):
 		return error(start_response, message = 'no transition_id')
 	channel = parameters['channel'][0].decode('utf-8').lower()
 	transition_id = parameters['transition_id'][0].decode('utf-8')
+	if db[session['account']].find({'channel': channel}).count() == 0:
+		db[session['account']].insert({'channel': channel})
 	context['channel'] = channel
 	context['transition_id'] = transition_id
 	logs = []
@@ -199,8 +203,18 @@ def send(environ, start_response, session, parameters):
 	start_response('200 OK', [('Content-Type', 'text/xml; charset=utf-8')])
 	return [render('result.xml', context)]
 
+def delete(environ, start_response, session, parameters):
+	if 'channel' not in parameters:
+		return error(start_response, message = 'no channel')
+	channel = parameters['channel'][0].decode('utf-8').lower()
+	db[session['account']].remove({'channel': channel})
+	start_response('200 OK', [])
+	return []
+
 def default(environ, start_response, session, parameters):
-	context = {'account': session['account']}
+	context = {}
+	context['account'] = session['account']
+	context['channels'] = db[session['account']].find(fields = ['channel'])
 	db.session.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
 	start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
 	return [render('channel.html', context)]

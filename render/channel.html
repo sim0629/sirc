@@ -16,7 +16,8 @@
 <a id="dummy" name=""></a>
 <div id="wrapper" data-role="page">
 	<div data-role="header" data-position="fixed" data-theme="d">
-		<h1 id="channel">How to use SIRC</h1>
+		<a href="/" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+		<h1 id="channel">SIRC</h1>
 		<a id="setting" data-role="button" data-icon="gear" data-iconpos="notext">setting</a>
 		<div id="menu" style="display:none;">
 			<ul data-role="listview">
@@ -31,18 +32,18 @@
 		</div>
 	</div>
 	<div data-role="content" data-theme="d">
-		<ul id="log" data-role="listview">
-			<li><strong>Append the channel name to URL</strong> (as hash fragment) where you want to join.</li>
-			<li>(Ex) sirc.domain.com/<strong>#sgm</strong></li>
-			<li>That's all.</li>
-			<li>Welcome, <strong>{{ account }}</strong>!</li>
-			<li>Enjoy your <strong>irc</strong>ing!</li>
+		<ul id="log" data-role="listview" data-split-theme="d" data-split-icon="delete">
 			<li><a href="https://github.com/sim0629/sirc/wiki" target="_blank">https://github.com/sim0629/sirc/wiki</a></li>
+			<li><a>Welcome, <strong>{{ account }}</strong>!</a></li>
+			<li><a>Enjoy your <strong>irc</strong>ing!</a></li>
+			{% for channel in channels %}
+			<li><a href="{{ channel['channel'] }}"><strong>{{ channel['channel'] }}</strong></a><a sirc="delete" channel="{{ channel['channel'] }}">delete</a></li>
+			{% endfor %}
 		</ul>
 	</div>
 	<div data-role="footer" data-position="fixed" data-theme="d">
 		<form id="send" method="get" onsubmit="return false;">
-			<input id="message" name="message" type="text" />
+			<input id="message" name="message" type="text" value="#sgm" />
 		</form>
 	</div>
 </div>

@@ -56,6 +56,10 @@ var scroll = function(pos, duration) {
 	$('body,html,document').animate({scrollTop: pos}, duration);
 };
 
+var trim = function(str){
+	return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+};
+
 // Ajax Calls
 
 var sirc_update = function() {
@@ -107,25 +111,32 @@ var sirc_downdate = function(callback) {
 };
 
 var sirc_send = function() {
-	if(channel == '') return false;
-	var message = $('input#message').val();
-	if(message == '') return false;
+	var message = trim($('input#message').val());
+	if(message.length < 1) return false;
+	if(channel == '') {
+		window.location.hash = (message.substr(0, 1) == '#' ? '' : '#') + message;
+		$('input#message').val('');
+		return false;
+	}
 	$.ajax({
 		type: 'GET',
 		url: '/send/',
 		data: 'channel=' + encodeURIComponent(channel) + '&message=' + encodeURIComponent($('input#message').val()),
 		dataType: 'xml',
 		success: function(xml) {
-			add_process(xml, 'send');
+			$('input#message').removeAttr('disabled');
+			$('input#message').removeClass('disabled');
 			$('input#message').val('');
-			$('form#send').removeAttr('disabled');
+			add_process(xml, 'send');
 		},
 		error: function(xhr) {
 			//alert('send: ' + xhr.responseText);
-			$('form#send').removeAttr('disabled');
+			$('input#message').removeAttr('disabled');
+			$('input#message').removeClass('disabled');
 		}
 	});
-	$('form#send').attr('disabled', 'disabled');
+	$('input#message').attr('disabled', 'disabled');
+	$('input#message').addClass('disabled');
 	return false;
 };
 
@@ -136,9 +147,25 @@ var sirc_join = function() {
 	$('title').html(channel + ' - SIRC');
 	$('h1#channel').html(channel);
 	$('ul#log').empty();
+	$('input#message').val('');
 	last_update = last_downdate = datetime_now();
 	sirc_downdate(function() { scroll(SCROLL_END, 1000); });
 	setTimeout("sirc_update();", 500);
+	return false;
+};
+
+var sirc_delete = function(a) {
+	$.ajax({
+		type: 'GET',
+		url: '/delete/',
+		data: 'channel=' + encodeURIComponent($(a).attr('channel')),
+		success: function() {
+			$(a).parent().remove();
+		},
+		error: function(xhr) {
+			//alert('delete: ' + xhr.responseText);
+		}
+	});
 	return false;
 };
 
@@ -146,8 +173,9 @@ var sirc_join = function() {
 
 $(document).ready(function() {
 	$('a#setting').click(function() { $('div#menu').toggle(); return false; });
+	$('a[sirc="delete"]').click(function() { return sirc_delete(this); });
 	$('form#send').submit(function() { return sirc_send(); });
 	$('input#message').keydown(function (e) { if(e.keyCode == 13) return sirc_send(); });
-	$(window).hashchange(function() { transition_id++; return sirc_join(); });
+	$(window).hashchange(function() { if(window.location.hash == '') window.location.reload(); transition_id++; return sirc_join(); });
 	sirc_join();
 });
