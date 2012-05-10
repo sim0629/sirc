@@ -31,4 +31,4 @@ OAUTH = {
 		'ACCESS_URL': 'https://api.twitter.com/oauth/access_token'
 	}
 }
-CALLBACK_URL = 'http://sirc.neria.kr/callback/'
+CALLBACK_URL = 'http://neria.kr:%d/callback/' % SIRC_PORT
