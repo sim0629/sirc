@@ -20,7 +20,7 @@ var add_process = function(xml, flag) {
 };
 
 var append_log = function(flag, datetime, source, message) {
-	var element = $('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + html_encode(message) + '</div></li>');
+	var element = $('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + url_detection(html_encode(message)) + '</div></li>');
 	if(flag == 'downdate') {
 		element.prependTo($('ul#log'));
 		last_downdate = datetime;
@@ -58,6 +58,11 @@ var scroll = function(pos, duration) {
 
 var trim = function(str){
 	return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+};
+
+var URL_PATTERN = /((https?|ftp):\/\/)(([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)|localhost|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|net|org|info|biz|gov|name|edu|[a-zA-Z][a-zA-Z]))(:[0-9]+)?((\/|\?)[^ "]*[^ ,;\.:">)])?/g; // from dputty
+var url_detection = function(str) {
+	return str.replace(URL_PATTERN, '<a href="' + '$&' + '" target="_blank">' + '$&' + '</a>');
 };
 
 // Ajax Calls
