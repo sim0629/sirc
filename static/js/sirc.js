@@ -33,7 +33,7 @@ var append_log = function(flag, datetime, source, message) {
 };
 
 var datetime_format = function(datetime) {
-	return datetime.substr(0, 19).replace(' ', '<br />');
+	return datetime.substring(5, 19).replace(' ', '<br />');
 };
 
 var datetime_now = function() {
