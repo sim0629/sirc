@@ -3,6 +3,7 @@
 # SIRC
 N_LINES = 32
 SIRC_PORT = 2354
+SIRC_DB = 'sirc_db'
 
 # IRC
 SERVER = 'irc.uriirc.org'

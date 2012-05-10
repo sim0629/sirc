@@ -17,9 +17,10 @@ PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(PATH)
 
 import config
+import bot
 
 con = pymongo.Connection()
-db = con.sirc_db
+db = con[config.SIRC_DB]
 
 def application(environ, start_response):
 	cookie = Cookie.SimpleCookie()
@@ -285,6 +286,8 @@ def remove_invalid_utf8_char(s):
 	return pattern.sub(u'�', s)
 
 if __name__ == '__main__':
+	bot = bot.SBot()
+	gevent.spawn(bot.start)
 	server = gevent.pywsgi.WSGIServer(('0.0.0.0', config.SIRC_PORT), application)
 	server.serve_forever()
 
