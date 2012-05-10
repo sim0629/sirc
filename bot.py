@@ -19,7 +19,7 @@ class SBot(ircbot.SingleServerIRCBot):
 		self.connected = False
 
 		connection = pymongo.Connection()
-		self.db = connection.sirc_db
+		self.db = connection[config.SIRC_DB]
 		self.db.send.remove()
 		self._fetch()
 	
