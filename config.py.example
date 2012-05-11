@@ -4,11 +4,14 @@
 N_LINES = 32
 SIRC_PORT = 2354
 SIRC_DB = 'sirc_db'
+NOTIFY_NAME = '!'
 
 # IRC
 SERVER = 'irc.uriirc.org'
 PORT = 16667
 BOT_NAME = 's'
+OPERATOR_NAME = 'sgm'
+OPERATOR_COMMAND = '!옵'
 
 # Cookie keys
 SESSION_ID = 'SIRC_SESSION_ID'
