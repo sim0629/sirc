@@ -7,3 +7,20 @@ div.message { word-wrap:break-word; }
 ul#log li { padding:5px !important; font-weight:normal; border-color:#efefef; }
 input#message.disabled { color:#cdcdcd; }
 
+.c-0 { color:#7f0000; }
+.c-1 { color:#7f2e00; }
+.c-2 { color:#7f5d00; }
+.c-3 { color:#727f00; }
+.c-4 { color:#7f0000; }
+.c-5 { color:#447f00; }
+.c-6 { color:#157f00; }
+.c-7 { color:#007f19; }
+.c-8 { color:#007f48; }
+.c-9 { color:#007f76; }
+.c-10 { color:#00597f; }
+.c-11 { color:#002a7f; }
+.c-12 { color:#04007f; }
+.c-13 { color:#33007f; }
+.c-14 { color:#61007f; }
+.c-15 { color:#7f006e; }
+
