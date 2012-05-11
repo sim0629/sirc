@@ -1,1 +1,4 @@
-python wsgi.py
+1. cp config.py.example config.py
+2. vim config.py
+3. (edit)
+4. python wsgi.py
