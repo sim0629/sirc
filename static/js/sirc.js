@@ -33,7 +33,7 @@ var append_log = function(flag, datetime, source, message) {
 };
 
 var datetime_format = function(datetime) {
-	return datetime.substring(5, 19).replace(' ', '<br />');
+	return datetime.substring(5, 16).replace(' ', '<br />');
 };
 
 var datetime_now = function() {
@@ -101,7 +101,7 @@ var sirc_downdate = function(callback) {
 			if($('result', xml).attr('transition_id') == transition_id) {
 				add_process(xml, 'downdate');
 				if($('log', xml).length > 0)
-					$('<li><a>more</a></li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
+					$('<li><a>more...</a></li>').click(function() { $(this).remove(); return sirc_downdate(); }).prependTo($('ul#log'));
 				$('ul#log').listview('refresh');
 				if(callback) callback();
 				$.mobile.hidePageLoadingMsg();
