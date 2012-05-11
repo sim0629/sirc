@@ -22,11 +22,12 @@ var add_process = function(xml, flag) {
 var append_log = function(flag, datetime, source, message) {
 	var element = $('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick">' + html_encode(source) + '</span>&gt;</div><div class="message">' + url_detection(html_encode(message)) + '</div></li>');
 	if(flag == 'downdate') {
-		element.prependTo($('ul#log'));
 		last_downdate = datetime;
+		element.prependTo($('ul#log'));
 	}else {
-		element.appendTo($('ul#log')).attr('flag', flag);
 		if(flag != 'send') last_update = datetime;
+		else element.attr('data-theme', 'b');
+		element.appendTo($('ul#log')).attr('flag', flag);
 	}
 	if(flag != 'downdate')
 		scroll(SCROLL_END, 200);
