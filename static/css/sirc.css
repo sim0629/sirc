@@ -4,7 +4,7 @@ div.datetime { font-size:8px; text-align:center; float:left; line-height:1; colo
 div.source { float:left; margin:0px 5px; }
 span.nick { font-weight:bold; }
 div.message { word-wrap:break-word; }
-ul#log li { padding:5px !important; font-weight:normal; border-color:#efefef; }
+ul#log li { padding:5px !important; font-weight:normal; border-color:#efefef; overflow:hidden; }
 input#message.disabled { color:#cdcdcd; }
 
 .c-0 { color:#7f0000; }
