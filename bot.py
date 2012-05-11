@@ -59,7 +59,7 @@ class SBot(ircbot.SingleServerIRCBot):
 				self._log(target, config.NOTIFY_NAME, '<%s> has quit.' % nick)
 	
 	def on_kick(self, c, e):
-		nick = irclib.nm_to_n(e.source())
+		nick_s = irclib.nm_to_n(e.source())
 		nick_m = e.arguments()[0]
 		because_of = e.arguments()[1]
 		self._log(e.target(), config.NOTIFY_NAME, '<%s> was kicked by <%s> because of "%s".' % (nick_m, nick_s, because_of))
