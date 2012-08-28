@@ -14,7 +14,7 @@
 	</script>
 </head>
 <body>
-	<p>Select a content provider to auth.</p>
+	<p>Select an oauth provider.</p>
 	<ul>
 		{% for cp in oauth %}
 			<li><a href="/" onclick="return auth('{{ cp }}');">{{ cp }}</a></li>
