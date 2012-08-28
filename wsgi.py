@@ -110,7 +110,7 @@ def callback(environ, start_response, oauth_config, oauth_provider):
 	else:
 		return error(start_response, message = 'account')
 	session_id = create_session_id()
-	shown_account = '%s%s' % (('@' if oauth_provider == 'twitter' else '+'), account)
+	shown_account = '%s%s' % (config.OAUTH[oauth_provider]['PREFIX'], account)
 	data = {
 		'session_id': session_id,
 		'account': shown_account,

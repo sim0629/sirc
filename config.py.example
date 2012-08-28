@@ -25,14 +25,16 @@ OAUTH = {
 		'CONSUMER_SECRET': '',
 		'REQUEST_URL': 'https://www.snucse.org/app/RequestToken',
 		'AUTHORIZE_URL': 'https://www.snucse.org/app/Authorize',
-		'ACCESS_URL': 'https://www.snucse.org/app/AccessToken'
+		'ACCESS_URL': 'https://www.snucse.org/app/AccessToken',
+		'PREFIX': '+'
 	},
 	'twitter': {
 		'CONSUMER_KEY': '',
 		'CONSUMER_SECRET': '',
 		'REQUEST_URL': 'https://api.twitter.com/oauth/request_token',
 		'AUTHORIZE_URL': 'https://api.twitter.com/oauth/authenticate',
-		'ACCESS_URL': 'https://api.twitter.com/oauth/access_token'
+		'ACCESS_URL': 'https://api.twitter.com/oauth/access_token',
+		'PREFIX': '@'
 	}
 }
 CALLBACK_URL = 'http://neria.kr:%d/callback/' % SIRC_PORT
