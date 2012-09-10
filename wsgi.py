@@ -274,7 +274,7 @@ def request_access_token(oauth_token, oauth_token_secret, oauth_verifier, oauth_
 	token = oauth2.Token(oauth_token, oauth_token_secret)
 	token.set_verifier(oauth_verifier)
 	consumer = oauth2.Consumer(oauth_config['CONSUMER_KEY'], oauth_config['CONSUMER_SECRET'])
-	request = oauth2.Request.from_consumer_and_token(consumer, token=token, http_url=oauth_config['ACCESS_URL'])
+	request = oauth2.Request.from_consumer_and_token(consumer, token=token, http_url=oauth_config['ACCESS_URL'], is_form_encoded=True)
 	request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, token)
 	response = httplib2.Http().request(request.to_url())
 	if response[0]['status'] != '200':
