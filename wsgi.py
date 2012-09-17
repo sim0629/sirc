@@ -11,6 +11,7 @@ import cgi
 import Cookie
 import jinja2
 
+import urllib2
 import pymongo
 
 PATH = os.path.dirname(os.path.realpath(__file__))
@@ -133,7 +134,10 @@ def update(environ, start_response, session, parameters):
 		last_update = parse_datetime(parameters['last_update'][0].decode('utf-8'))
 	if 'transition_id' not in parameters:
 		return error(start_response, message = 'no transition_id')
-	channel = parameters['channel'][0].decode('utf-8').lower()
+	channel = parameters['channel'][0].lower()#.decode('utf-8').lower()
+	#channel is percent-encoded now
+	channel_encoded = urllib2.quote(channel)
+
 	transition_id = parameters['transition_id'][0].decode('utf-8')
 	if db[session['account']].find({'channel': channel}).count() == 0:
 		db[session['account']].insert({'channel': channel})
@@ -141,7 +145,7 @@ def update(environ, start_response, session, parameters):
 	context['transition_id'] = transition_id
 	logs = []
 	for i in xrange(30):
-		logs = list(db[channel].find({
+		logs = list(db[channel_encoded].find({
 			'datetime': {"$gt": last_update},
 		}, sort = [
 			('datetime', pymongo.ASCENDING)
@@ -166,11 +170,13 @@ def downdate(environ, start_response, session, parameters):
 		last_downdate = parse_datetime(parameters['last_downdate'][0].decode('utf-8'))
 	if 'transition_id' not in parameters:
 		return error(start_response, message = 'no transition_id')
-	channel = parameters['channel'][0].decode('utf-8').lower()
+	channel = parameters['channel'][0].lower()#.decode('utf-8').lower()
+	channel_encoded = urllib2.quote(channel) #channel name is percent-encoded
+
 	transition_id = parameters['transition_id'][0].decode('utf-8')
 	context['channel'] = channel
 	context['transition_id'] = transition_id
-	logs = db[channel].find({
+	logs = db[channel_encoded].find({
 		'datetime': {"$lt": last_downdate},
 	}, limit = config.N_LINES, sort = [
 		('datetime', pymongo.DESCENDING)
@@ -189,6 +195,7 @@ def send(environ, start_response, session, parameters):
 		return error(start_response, message = 'no channel')
 	if 'message' not in parameters:
 		return error(start_response, message = 'no message')
+	#send db에 넣을 때는 percent-encode할 필요가 없다
 	channel = parameters['channel'][0].decode('utf-8').lower()
 	message = parameters['message'][0].decode('utf-8')
 	db.send.insert({
@@ -274,7 +281,7 @@ def request_access_token(oauth_token, oauth_token_secret, oauth_verifier, oauth_
 	token = oauth2.Token(oauth_token, oauth_token_secret)
 	token.set_verifier(oauth_verifier)
 	consumer = oauth2.Consumer(oauth_config['CONSUMER_KEY'], oauth_config['CONSUMER_SECRET'])
-	request = oauth2.Request.from_consumer_and_token(consumer, token=token, http_url=oauth_config['ACCESS_URL'])
+	request = oauth2.Request.from_consumer_and_token(consumer, token=token, http_url=oauth_config['ACCESS_URL'], is_form_encoded=True)
 	request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, token)
 	response = httplib2.Http().request(request.to_url())
 	if response[0]['status'] != '200':
