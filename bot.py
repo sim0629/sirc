@@ -65,9 +65,9 @@ class SBot(ircbot.SingleServerIRCBot):
 		nick_m = e.arguments()[0]
 		because_of = e.arguments()[1]
 		self._log(e.target(), config.NOTIFY_NAME, '<%s> was kicked by <%s> because of "%s".' % (nick_m, nick_s, because_of))
-	#µı»ç¶÷ÀÌ ¸Ş½ÃÁö¸¦ ½èÀ»¶§
-	def on_pubmsg(self, c, e): #c´Â Ä¿³ØÆ®µÈ ¼­¹ö, Çã³ª ÀÌ¹Ì connectionÀÌ¶ó´Â ¸â¹ö º¯¼ö°¡ ÀÖÀ¸¹Ç·Î ±×·¸°Ô ÇÊ¿ä°¡ ÀÖÀ»±î?=>
-		nick = irclib.nm_to_n(e.source())# e: Event°´Ã¼(source¿Í targetÀÌ ÀÖÀ½)
+	#ë”´ì‚¬ëŒì´ ë©”ì‹œì§€ë¥¼ ì¼ì„ë•Œ
+	def on_pubmsg(self, c, e): #cëŠ” ì»¤ë„¥íŠ¸ëœ ì„œë²„, í—ˆë‚˜ ì´ë¯¸ connectionì´ë¼ëŠ” ë©¤ë²„ ë³€ìˆ˜ê°€ ìˆìœ¼ë¯€ë¡œ ê·¸ë ‡ê²Œ í•„ìš”ê°€ ìˆì„ê¹Œ?=>
+		nick = irclib.nm_to_n(e.source())# e: Eventê°ì²´(sourceì™€ targetì´ ìˆìŒ)
 		target = e.target()
 		message = e.arguments()[0]
 		self._log(target, nick, message)
@@ -87,8 +87,8 @@ class SBot(ircbot.SingleServerIRCBot):
 			self.db[channel].insert(data)
 		except:
 			pass
-	#send¿¡ µé¾îÀÖ´Â °Í=>irc ¼­¹ö·Î Àü¼Û
-	#ÀÚµ¿À¸·Î ºÒ¸²
+	#sendì— ë“¤ì–´ìˆëŠ” ê²ƒ=>irc ì„œë²„ë¡œ ì „ì†¡
+	#ìë™ìœ¼ë¡œ ë¶ˆë¦¼
 	def _fetch(self):
 		if self.connected:
 			try:
@@ -99,13 +99,13 @@ class SBot(ircbot.SingleServerIRCBot):
 						self.connection.join(channel)
 					account = data['account'].encode('utf-8')
 					message = ('<%s> %s' % (account, data['message'])).encode('utf-8')
-					self.connection.privmsg(channel, message) #Áß¿ä: ¸Ş½ÃÁö º¸³¿
+					self.connection.privmsg(channel, message) #ì¤‘ìš”: ë©”ì‹œì§€ ë³´ëƒ„
 					self._log(channel, self._nickname, message)
 					self.db.send.remove(data)
 			except irclib.ServerNotConnectedError:
 				self.connected = False
 				self._connect()
-		self.ircobj.execute_delayed(1, self._fetch) # 1ÃÊ¸¶´Ù fetchÇÏ´Â ÇÔ¼ö
+		self.ircobj.execute_delayed(1, self._fetch) # 1ì´ˆë§ˆë‹¤ fetchí•˜ëŠ” í•¨ìˆ˜
 
 if __name__ == '__main__':
 	bot = SBot()
