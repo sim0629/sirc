@@ -85,6 +85,7 @@ class SBot(ircbot.SingleServerIRCBot):
 			channel = target.lower()
 			channel = urllib2.quote(channel) # percent encoding to deal with hangul channel
 			self.db[channel].insert(data)
+			self.db[channel].ensure_index('datetime')
 		except:
 			pass
 	#send에 들어있는 것=>irc 서버로 전송
