@@ -3,7 +3,9 @@
 # SIRC
 N_LINES = 32
 SIRC_PORT = 2354
-SIRC_DB = 'sirc_db'
+SIRC_DB = 'sirc'
+SIRC_DB_USER = 'sirc'
+SIRC_DB_PASS = 'sirc'
 NOTIFY_NAME = '!'
 
 # IRC

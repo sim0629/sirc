@@ -22,6 +22,7 @@ import bot
 
 con = pymongo.Connection()
 db = con[config.SIRC_DB]
+db.authenticate(config.SIRC_DB_USER, config.SIRC_DB_PASS)
 
 def application(environ, start_response):
 	cookie = Cookie.SimpleCookie()
