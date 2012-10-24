@@ -21,7 +21,8 @@ class SBot(ircbot.SingleServerIRCBot):
 
 		connection = pymongo.Connection()
 		self.db = connection[config.SIRC_DB]
-		self.db.authenticate(config.SIRC_DB_USER, config.SIRC_DB_PASS)
+		if config.SIRC_DB_USE_AUTH:
+			self.db.authenticate(config.SIRC_DB_USER, config.SIRC_DB_PASS)
 		self.db.send.remove()
 		self._fetch()
 	

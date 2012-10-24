@@ -4,6 +4,7 @@
 N_LINES = 32
 SIRC_PORT = 2354
 SIRC_DB = 'sirc'
+SIRC_DB_USE_AUTH = True
 SIRC_DB_USER = 'sirc'
 SIRC_DB_PASS = 'sirc'
 NOTIFY_NAME = '!'
