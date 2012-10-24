@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <result transition_id="{{ transition_id }}">
-	{% for log in logs %}
-		<log>
-			<datetime><![CDATA[{{ log.datetime }}]]></datetime>
-			<source><![CDATA[{{ log.source }}]]></source>
-			<message><![CDATA[{{ log.message }}]]></message>
-		</log>
-	{% endfor %}
+    {% for log in logs %}
+        <log>
+            <datetime><![CDATA[{{ log.datetime }}]]></datetime>
+            <source><![CDATA[{{ log.source }}]]></source>
+            <message><![CDATA[{{ log.message }}]]></message>
+        </log>
+    {% endfor %}
 </result>
