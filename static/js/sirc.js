@@ -141,12 +141,14 @@ var sirc_send = function() {
             $('input#message').removeAttr('disabled');
             $('input#message').removeClass('disabled');
             $('input#message').val('');
+            $('input#message').focus();
             add_process(xml, 'send');
         },
         error: function(xhr) {
             //alert('send: ' + xhr.responseText);
             $('input#message').removeAttr('disabled');
             $('input#message').removeClass('disabled');
+            $('input#message').focus();
         }
     });
     $('input#message').attr('disabled', 'disabled');
