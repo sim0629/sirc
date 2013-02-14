@@ -159,6 +159,9 @@ var sirc_send = function() {
 var sirc_join = function() {
     if(!window.location.hash) return;
     channel = window.location.hash;
+    if(channel.length > 2 && channel.charAt(1) == '%') {
+        channel = decodeURI(channel);
+    }
     $('a#dummy').attr('name', channel.substr(1))
     $('title').html(channel + ' - SIRC');
     $('h1#channel').html(channel);
