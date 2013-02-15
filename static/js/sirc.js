@@ -128,7 +128,8 @@ var sirc_send = function() {
     var message = trim($('input#message').val());
     if(message.length < 1) return false;
     if(channel == '') {
-        window.location.hash = (message.substr(0, 1) == '#' ? '' : '#') + message;
+        channel = (message.substr(0, 1) == '#' ? '' : '#') + message;
+        window.location.hash = encodeURI(channel);
         $('input#message').val('');
         return false;
     }
