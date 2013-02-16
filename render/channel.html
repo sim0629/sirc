@@ -16,7 +16,7 @@
 <a id="dummy" name=""></a>
 <div id="wrapper" data-role="page">
     <div data-role="header" data-position="fixed" data-theme="d">
-        <a href="/" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+        <a id="quickening" data-role="button" data-icon="home" data-iconpos="notext">home</a>
         <h1 id="channel">SIRC</h1>
         <a id="setting" data-role="button" data-icon="gear" data-iconpos="notext">setting</a>
         <div id="menu" style="display:none;">
@@ -28,6 +28,13 @@
                         <option value="on" selected="selected">On</option>
                     </select>
                 </li>
+            </ul>
+        </div>
+        <div id="quick_channel" style="display:none;">
+            <ul data-role="listview">
+                {% for channel in channels %}
+                <li><a href="{{ channel['channel'] }}"><strong>{{ channel['channel'] }}</strong></a></li>
+                {% endfor %}
             </ul>
         </div>
     </div>

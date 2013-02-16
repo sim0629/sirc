@@ -192,6 +192,8 @@ var sirc_delete = function(a) {
 // Main
 
 $(document).ready(function() {
+    $('div#quick_channel a').click(function() { $('div#quick_channel').hide(); });
+    $('a#quickening').click(function() { $('div#quick_channel').toggle(); return false; });
     $('a#setting').click(function() { $('div#menu').toggle(); return false; });
     $('a[sirc="delete"]').click(function() { return sirc_delete(this); });
     $('form#send').submit(function() { return sirc_send(); });

@@ -224,7 +224,7 @@ def delete(environ, start_response, session, parameters):
 def default(environ, start_response, session, parameters):
     context = {}
     context['account'] = session['account']
-    context['channels'] = db[session['account']].find(fields = ['channel'])
+    context['channels'] = list(db[session['account']].find(fields = ['channel']))
     db.session.remove({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(1)}})
     start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
     return [render('channel.html', context)]
