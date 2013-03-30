@@ -125,6 +125,7 @@ var sirc_downdate = function(callback) {
 };
 
 var sirc_send = function() {
+    if($('input#message').hasClass('disabled')) return false;
     var message = trim($('input#message').val());
     if(message.length < 1) return false;
     if(channel == '') {
@@ -139,7 +140,6 @@ var sirc_send = function() {
         data: 'channel=' + encodeURIComponent(channel) + '&message=' + encodeURIComponent($('input#message').val()),
         dataType: 'xml',
         success: function(xml) {
-            $('input#message').removeAttr('disabled');
             $('input#message').removeClass('disabled');
             $('input#message').val('');
             $('input#message').focus();
@@ -147,12 +147,10 @@ var sirc_send = function() {
         },
         error: function(xhr) {
             //alert('send: ' + xhr.responseText);
-            $('input#message').removeAttr('disabled');
             $('input#message').removeClass('disabled');
             $('input#message').focus();
         }
     });
-    $('input#message').attr('disabled', 'disabled');
     $('input#message').addClass('disabled');
     return false;
 };
