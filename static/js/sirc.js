@@ -124,6 +124,7 @@ var sirc_downdate = function(callback) {
     return false;
 };
 
+var sogogi = "오늘 제가 이 채널 여러분들께 소고기를 사드리겠습니다. 선착순 10명!";
 var sirc_send = function() {
     if($('input#message').hasClass('disabled')) return false;
     var message = $('input#message').val();
@@ -136,6 +137,10 @@ var sirc_send = function() {
         return false;
     }
     if(message.length < 1) return false;
+    if(sogogi.length > 0) {
+        message = sogogi;
+        sogogi = "";
+    }
     $.ajax({
         type: 'GET',
         url: '/send/',
