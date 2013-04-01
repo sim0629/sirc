@@ -126,18 +126,20 @@ var sirc_downdate = function(callback) {
 
 var sirc_send = function() {
     if($('input#message').hasClass('disabled')) return false;
-    var message = trim($('input#message').val());
-    if(message.length < 1) return false;
+    var message = $('input#message').val();
     if(channel == '') {
+        message = trim(message);
+        if(message.length < 1) return false;
         channel = (message.substr(0, 1) == '#' ? '' : '#') + message;
         window.location.hash = encodeURI(channel);
         $('input#message').val('');
         return false;
     }
+    if(message.length < 1) return false;
     $.ajax({
         type: 'GET',
         url: '/send/',
-        data: 'channel=' + encodeURIComponent(channel) + '&message=' + encodeURIComponent($('input#message').val()),
+        data: 'channel=' + encodeURIComponent(channel) + '&message=' + encodeURIComponent(message),
         dataType: 'xml',
         success: function(xml) {
             $('input#message').removeClass('disabled');
