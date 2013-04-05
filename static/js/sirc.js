@@ -144,13 +144,11 @@ var sirc_send = function() {
         success: function(xml) {
             $('input#message').removeClass('disabled');
             $('input#message').val('');
-            $('input#message').focus();
             add_process(xml, 'send');
         },
         error: function(xhr) {
             //alert('send: ' + xhr.responseText);
             $('input#message').removeClass('disabled');
-            $('input#message').focus();
         }
     });
     $('input#message').addClass('disabled');
