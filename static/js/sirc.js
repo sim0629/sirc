@@ -84,10 +84,15 @@ var sirc_update = function() {
         data: 'channel=' + encodeURIComponent(channel) + '&last_update=' + encodeURIComponent(last_update) + '&transition_id=' + transition_id,
         dataType: 'xml',
         success: function(xml) {
-            if($('result', xml).attr('transition_id') == transition_id) {
-                add_process(xml, 'update');
-                $('ul#log > li[flag="send"]').remove();
-                setTimeout("sirc_update();", 500);
+            var result = $('result', xml);
+            if(result.attr('transition_id') == transition_id) {
+                if(result.attr('status') == 'flooded') {
+                    sirc_join();
+                }else {
+                    add_process(xml, 'update');
+                    $('ul#log > li[flag="send"]').remove();
+                    setTimeout("sirc_update();", 500);
+                }
             }
         },
         error: function(xhr) {

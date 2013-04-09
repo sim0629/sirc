@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<result transition_id="{{ transition_id }}">
+<result transition_id="{{ transition_id }}" status="{{ status }}">
     {% for log in logs %}
         <log>
             <datetime><![CDATA[{{ log.datetime }}]]></datetime>

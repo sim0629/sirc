@@ -155,6 +155,9 @@ def update(environ, start_response, session, parameters):
         if len(logs) == 0:
             gevent.sleep(1)
         else:
+            if len(logs) > config.N_LINES:
+                logs = []
+                context['status'] = 'flooded'
             break
     for log in logs:
         log['source'] = remove_invalid_utf8_char(log['source'])
