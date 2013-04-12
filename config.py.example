@@ -3,6 +3,7 @@
 # SIRC
 N_LINES = 32
 SIRC_PORT = 2354
+SIRC_URL = 'http://neria.kr:%d/' % SIRC_PORT
 SIRC_DB = 'sirc'
 SIRC_DB_USE_AUTH = True
 SIRC_DB_USER = 'sirc'
@@ -40,4 +41,4 @@ OAUTH = {
         'PREFIX': '@'
     }
 }
-CALLBACK_URL = 'http://neria.kr:%d/callback/' % SIRC_PORT
+CALLBACK_URL = '%scallback/' % SIRC_URL

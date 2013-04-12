@@ -48,7 +48,8 @@ def application(environ, start_response):
         if sessions.count() > 0:
             session = sessions[0]
     if session is None:
-        if oauth_config is None:
+        referer = environ.get('HTTP_REFERER', '')
+        if oauth_config is None or referer != config.SIRC_URL:
             return preauth(environ, start_response)
         else:
             return auth(environ, start_response, oauth_config)
