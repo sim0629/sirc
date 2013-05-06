@@ -170,7 +170,7 @@ var sirc_join = function() {
     $('title').html(channel + ' - SIRC');
     $('h1#channel').html(channel);
     $('ul#log').empty();
-    $('input#message').val('');
+    $('input#message').attr('placeholder', '');
     last_update = last_downdate = datetime_now();
     sirc_downdate(function() { scroll(SCROLL_END, 1000); });
     setTimeout("sirc_update();", 500);
