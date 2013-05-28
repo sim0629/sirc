@@ -70,7 +70,7 @@ var trim = function(str){
 };
 
 var URL_PATTERN = /(((https?|ftp):\/\/)(([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)|localhost|([a-zA-Z0-9_\-]+\.)*[a-zA-Z0-9\-]+\.(com|net|org|info|biz|gov|name|edu|[a-zA-Z][a-zA-Z]))(:[0-9]+)?((\/|\?)[^ "]*[^ ,;\.:">\)])?)/g; // from dputty
-var CHANNEL_PATTERN = /#\S+/g;
+var CHANNEL_PATTERN = /#([\w-]+|[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]+[\w-]*)/g;
 var url_detection = function(str) {
     var replaced_str = str.replace(URL_PATTERN, '<a href="' + '$&' + '" target="_blank">' + '$&' + '</a>');
     if(replaced_str != str) return replaced_str;
