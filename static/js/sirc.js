@@ -69,9 +69,12 @@ var trim = function(str){
     return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 };
 
-var URL_PATTERN = /(((https?|ftp):\/\/)(([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)|localhost|([a-zA-Z0-9_\-]+\.)*[a-zA-Z0-9\-]+\.(com|net|org|info|biz|gov|name|edu|[a-zA-Z][a-zA-Z]))(:[0-9]+)?((\/|\?)[^ "]*[^ ,;\.:">\)])?)|(#\S+)/g; // from dputty
+var URL_PATTERN = /(((https?|ftp):\/\/)(([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)|localhost|([a-zA-Z0-9_\-]+\.)*[a-zA-Z0-9\-]+\.(com|net|org|info|biz|gov|name|edu|[a-zA-Z][a-zA-Z]))(:[0-9]+)?((\/|\?)[^ "]*[^ ,;\.:">\)])?)/g; // from dputty
+var CHANNEL_PATTERN = /#\S+/g;
 var url_detection = function(str) {
-    return str.replace(URL_PATTERN, '<a href="' + '$&' + '" target="_blank">' + '$&' + '</a>');
+    var replaced_str = str.replace(URL_PATTERN, '<a href="' + '$&' + '" target="_blank">' + '$&' + '</a>');
+    if(replaced_str != str) return replaced_str;
+    return str.replace(CHANNEL_PATTERN, '<a href="' + '$&' + '" target="_blank">' + '$&' + '</a>');
 };
 
 // Ajax Calls
