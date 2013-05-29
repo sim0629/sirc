@@ -20,7 +20,7 @@ var add_process = function(xml, flag) {
 };
 
 var append_log = function(flag, datetime, source, message) {
-    var element = $('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick c-' + simple_hash(source) + '">' + html_encode(source) + '</span>&gt;</div><div class="message">' + url_detection(html_encode(message)) + '</div></li>');
+    var element = $('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick c-' + simple_hash(source) + '">' + html_encode(source) + '</span>&gt;</div><div class="message">' + nbsp(url_detection(html_encode(message))) + '</div></li>');
     if(flag == 'downdate') {
         last_downdate = datetime;
         element.prependTo($('ul#log'));
@@ -42,12 +42,29 @@ var datetime_now = function() {
     return d.getFullYear() + '-' + (d.getMonth() + 1) +  '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
 };
 
+var nbsp = function(s) {
+    var t = '';
+    var lt_count = 0, gt_count = 0;
+    for(var i = 0; i < s.length; i++) {
+        var c = s.substr(i, 1);
+
+        if(c == '<') lt_count++;
+        else if(c == '>') gt_count++;
+
+        if(c == ' ' && lt_count == gt_count && lt_count % 2 == 0)
+            t += '&nbsp;';
+        else
+            t += c;
+    }
+    return t;
+};
+
 var html_encode = function(s) {
     var e = document.createElement('div');
     e.innerText = e.textContent = s;
     s = e.innerHTML;
     delete e;
-    return s.replace(/ /g, '&nbsp;');
+    return s;
 };
 
 var SCROLL_END = -1;
