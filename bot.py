@@ -41,6 +41,12 @@ class SBot(ircbot.SingleServerIRCBot):
         else:
             pass
 
+    def on_topic(self, c, e):
+        nick = irclib.nm_to_n(e.source())
+        target = e.target()
+        new_topic = e.arguments()[0]
+        self._log(target, config.NOTIFY_NAME, '<%s> changed the topic to: "%s".' % (nick, new_topic))
+
     def on_nick(self, c, e):
         before = irclib.nm_to_n(e.source())
         after = e.target()
