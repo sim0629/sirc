@@ -47,7 +47,7 @@ var html_encode = function(s) {
     e.innerText = e.textContent = s;
     s = e.innerHTML;
     delete e;
-    return s;
+    return s.replace(/ /g, '&nbsp;');
 };
 
 var SCROLL_END = -1;
