@@ -20,7 +20,7 @@ var add_process = function(xml, flag) {
 };
 
 var append_log = function(flag, datetime, source, message) {
-    var element = $('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="source">&lt;<span class="nick c-' + simple_hash(source) + '">' + html_encode(source) + '</span>&gt;</div><div class="message">' + nbsp(url_detection(html_encode(message))) + '</div></li>');
+    var element = $('<li><div class="datetime">' + datetime_format(datetime) + '</div><div class="message">&lt;<span class="nick c-' + simple_hash(source) + '">' + html_encode(source) + '</span>&gt;&nbsp;' + nbsp(url_detection(html_encode(message))) + '</div></li>');
     if(flag == 'downdate') {
         last_downdate = datetime;
         element.prependTo($('ul#log'));
