@@ -2,10 +2,10 @@
 
 @import url(http://fonts.googleapis.com/earlyaccess/nanumgothiccoding.css);
 
-div.datetime { font-size:6px; text-align:center; float:right; line-height:0.8; color:#666666; }
+div.datetime { font-size:7px; text-align:center; float:right; line-height:1; color:#666666; }
 span.nick { }
-div.message { word-wrap:break-word; }
-ul#log li { padding:3px !important; font-family:'Nanum Gothic Coding'; font-weight:normal; border-color:#efefef; overflow:hidden; }
+div.message { word-wrap:break-word; font-family:'Nanum Gothic Coding'; }
+ul#log li { padding:3px !important; font-weight:normal; border-color:#efefef; overflow:hidden; }
 input#message.disabled { color:#cdcdcd; }
 h1#channel.disconnected { color:red; }
 
