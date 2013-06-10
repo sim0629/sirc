@@ -118,10 +118,8 @@ var sirc_update = function() {
         error: function(xhr) {
             //alert('update: ' + xhr.responseText);
             setTimeout("sirc_update();", 500);
-            $('h1#channel').addClass('disconnected');
         }
     });
-    $('h1#channel').removeClass('disconnected');
     return false;
 };
 

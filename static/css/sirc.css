@@ -7,7 +7,6 @@ span.nick { }
 div.message { word-wrap:break-word; font-family:'Nanum Gothic Coding'; }
 ul#log li { padding:3px !important; font-weight:normal; border-color:#efefef; overflow:hidden; }
 input#message.disabled { color:#cdcdcd; }
-h1#channel.disconnected { color:red; }
 
 .c-0 { color:#7f0000; }
 .c-1 { color:#7f2e00; }
