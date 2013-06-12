@@ -80,9 +80,11 @@ class SBot(ircbot.SingleServerIRCBot):
         message = e.arguments()[0]
         self._log(target, nick, message)
         if self.channels[target].is_oper(c.get_nickname()) and \
-            nick == config.OPERATOR_NAME and \
             message.startswith(config.OPERATOR_COMMAND):
-            self.connection.mode(target, '+o %s' % nick)
+            if nick == config.OPERATOR_NAME:
+                self.connection.mode(target, '+o %s' % nick)
+            else:
+                self.connection.kick(target, nick, '...')
     def _log(self, target, source, message):
         data = {
             'datetime': datetime.datetime.now(),
