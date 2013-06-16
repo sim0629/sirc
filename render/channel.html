@@ -32,6 +32,7 @@
         </div>
         <div id="quick_channel" style="display:none;">
             <ul data-role="listview">
+                <li><a href="/">HOME</a></li>
                 {% for channel in channels %}
                 <li><a href="{{ channel['channel'] }}"><strong>{{ channel['channel'] }}</strong></a></li>
                 {% endfor %}
