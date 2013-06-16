@@ -91,7 +91,7 @@ var CHANNEL_PATTERN = /#([\w-]+|[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]+[\w-]*)/g;
 var url_detection = function(str) {
     var replaced_str = str.replace(URL_PATTERN, '<a href="' + '$&' + '" target="_blank">' + '$&' + '</a>');
     if(replaced_str != str) return replaced_str;
-    return str.replace(CHANNEL_PATTERN, '<a href="' + '$&' + '" target="_blank">' + '$&' + '</a>');
+    return str.replace(CHANNEL_PATTERN, '<a href="' + '$&' + '">' + '$&' + '</a>');
 };
 
 // Ajax Calls
