@@ -89,7 +89,7 @@ class SBot(ircbot.SingleServerIRCBot):
         data = {
             'datetime': datetime.datetime.now(),
             'source': source,
-            'message': message,
+            'message': message.decode('utf-8', 'replace'),
         }
         try:
             channel = target.lower()
