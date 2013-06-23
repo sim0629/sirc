@@ -88,7 +88,7 @@ class SBot(ircbot.SingleServerIRCBot):
     def _log(self, target, source, message):
         data = {
             'datetime': datetime.datetime.now(),
-            'source': source,
+            'source': source.decode('utf-8', 'replace'),
             'message': message.decode('utf-8', 'replace'),
         }
         try:
