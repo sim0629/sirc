@@ -124,6 +124,7 @@ def callback(environ, start_response, oauth_config, oauth_provider):
     start_response('200 OK', [
         ('Refresh', '0; url=/'),
         ('Content-Type', 'text/html; charset=utf-8'),
+        ('Set-Cookie', '%s=deleted; path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT' % (config.TOKEN_SECRET)),
         ('Set-Cookie', '%s=%s; path=/' % (config.SESSION_ID, session_id))
     ])
     return ['<a href="/">%s Go</a>' % account]
