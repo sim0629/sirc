@@ -302,6 +302,6 @@ def remove_invalid_utf8_char(s):
 if __name__ == '__main__':
     bot = bot.SBot()
     gevent.spawn(bot.start)
-    server = gevent.pywsgi.WSGIServer(('0.0.0.0', config.SIRC_PORT), application)
+    server = gevent.pywsgi.WSGIServer((config.SIRC_ADDRESS, config.SIRC_PORT), application)
     server.serve_forever()
 

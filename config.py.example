@@ -2,6 +2,7 @@
 
 # SIRC
 N_LINES = 32
+SIRC_ADDRESS = '0.0.0.0'
 SIRC_PORT = 2354
 SIRC_URL = 'http://neria.kr:%d/' % SIRC_PORT
 SIRC_DB = 'sirc'
