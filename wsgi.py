@@ -26,6 +26,12 @@ if config.SIRC_DB_USE_AUTH:
     db.authenticate(config.SIRC_DB_USER, config.SIRC_DB_PASS)
 
 def application(environ, start_response):
+    http_host = environ.get('HTTP_HOST', '')
+    url_scheme = environ.get('wsgi.url_scheme', '')
+    path = environ.get('PATH_INFO', '')
+    if not config.SIRC_URL.startswith('%s://%s' % (url_scheme, http_host)):
+        return redirect(start_response, path)
+
     cookie = Cookie.SimpleCookie()
     cookie.load(environ.get('HTTP_COOKIE', ''))
     
@@ -35,7 +41,6 @@ def application(environ, start_response):
         if oauth_provider in config.OAUTH:
             oauth_config = config.OAUTH[oauth_provider]
 
-    path = environ.get('PATH_INFO', '')
     if path.startswith('/callback/'):
         if oauth_config is None:
             return error(start_response, message = 'callback')
@@ -251,6 +256,12 @@ def static(environ, start_response):
 
 def render(template, context):
     return jinja2.Environment(loader=jinja2.FileSystemLoader(PATH + '/render')).get_template(template).render(context).encode('utf-8')
+
+def redirect(start_response, path):
+    start_response('302 Found', [
+        ('Location', config.SIRC_URL.strip('/') + path)
+    ])
+    return []
 
 def error(start_response, code = '404 Not Found', message = 'error'):
     context = {}
