@@ -39,6 +39,7 @@ var datetime_format = function(datetime) {
 
 var datetime_now = function() {
     var d = new Date();
+    d = new Date(d.getTime() + (d.getTimezoneOffset() + 9 * 60) * 60 * 1000);
     return d.getFullYear() + '-' + (d.getMonth() + 1) +  '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
 };
 
