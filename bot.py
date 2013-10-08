@@ -1,7 +1,7 @@
 # coding: utf-8
 
-import ircbot
-import irclib
+import irc.bot
+import irc.client
 
 import pymongo
 import datetime
@@ -10,9 +10,9 @@ import config
 
 import urllib2 # only for quote
 
-class SBot(ircbot.SingleServerIRCBot):
+class SBot(irc.bot.SingleServerIRCBot):
     def __init__(self):
-        ircbot.SingleServerIRCBot.__init__(self,
+        irc.bot.SingleServerIRCBot.__init__(self,
             [(config.SERVER, config.PORT), ],
             config.BOT_NAME,
             'm',
@@ -34,50 +34,50 @@ class SBot(ircbot.SingleServerIRCBot):
                 c.join(target) #==self.connect.join(target)
     
     def on_mode(self, c, e):
-        nick = irclib.nm_to_n(e.source())
-        target = e.target()
-        if irclib.is_channel(target):
-            self._log(target, config.NOTIFY_NAME, '[%s] by <%s>.' % (' '.join(e.arguments()), nick))
+        nick = e.source.nick
+        target = e.target
+        if irc.client.is_channel(target):
+            self._log(target, config.NOTIFY_NAME, '[%s] by <%s>.' % (' '.join(e.arguments), nick))
         else:
             pass
 
     def on_topic(self, c, e):
-        nick = irclib.nm_to_n(e.source())
-        target = e.target()
-        new_topic = e.arguments()[0]
+        nick = e.source.nick
+        target = e.target
+        new_topic = e.arguments[0]
         self._log(target, config.NOTIFY_NAME, '<%s> changed the topic to: "%s".' % (nick, new_topic))
 
     def on_nick(self, c, e):
-        before = irclib.nm_to_n(e.source())
-        after = e.target()
+        before = e.source.nick
+        after = e.target
         for target, ch in self.channels.items():
             if ch.has_user(before):
                 self._log(target, config.NOTIFY_NAME, '<%s> is now known as <%s>.' % (before, after))
     
     def on_join(self, c, e):
-        nick = irclib.nm_to_n(e.source())
-        self._log(e.target(), config.NOTIFY_NAME, '<%s> has joined.' % nick)
+        nick = e.source.nick
+        self._log(e.target, config.NOTIFY_NAME, '<%s> has joined.' % nick)
 
     def on_part(self, c, e):
-        nick = irclib.nm_to_n(e.source())
-        self._log(e.target(), config.NOTIFY_NAME, '<%s> has left.' % nick)
+        nick = e.source.nick
+        self._log(e.target, config.NOTIFY_NAME, '<%s> has left.' % nick)
     
     def on_quit(self, c, e):
-        nick = irclib.nm_to_n(e.source())
+        nick = e.source.nick
         for target, ch in self.channels.items():
             if ch.has_user(nick):
                 self._log(target, config.NOTIFY_NAME, '<%s> has quit.' % nick)
     
     def on_kick(self, c, e):
-        nick_s = irclib.nm_to_n(e.source())
-        nick_m = e.arguments()[0]
-        because_of = e.arguments()[1]
-        self._log(e.target(), config.NOTIFY_NAME, '<%s> was kicked by <%s> because of "%s".' % (nick_m, nick_s, because_of))
+        nick_s = e.source.nick
+        nick_m = e.arguments[0]
+        because_of = e.arguments[1]
+        self._log(e.target, config.NOTIFY_NAME, '<%s> was kicked by <%s> because of "%s".' % (nick_m, nick_s, because_of))
     #딴사람이 메시지를 썼을때
     def on_pubmsg(self, c, e): #c는 커넥트된 서버, 허나 이미 connection이라는 멤버 변수가 있으므로 그렇게 필요가 있을까?=>
-        nick = irclib.nm_to_n(e.source())# e: Event객체(source와 target이 있음)
-        target = e.target()
-        message = e.arguments()[0]
+        nick = e.source.nick# e: Event객체(source와 target이 있음)
+        target = e.target
+        message = e.arguments[0]
         self._log(target, nick, message)
         if self.channels[target].is_oper(c.get_nickname()) and \
             message.startswith(config.OPERATOR_COMMAND):
@@ -113,7 +113,7 @@ class SBot(ircbot.SingleServerIRCBot):
                     self.connection.privmsg(channel, message) #중요: 메시지 보냄
                     self._log(channel, self._nickname, message)
                     self.db.send.remove(data)
-            except irclib.ServerNotConnectedError:
+            except irc.client.ServerNotConnectedError:
                 self.connected = False
                 self._connect()
         self.ircobj.execute_delayed(1, self._fetch) # 1초마다 fetch하는 함수
