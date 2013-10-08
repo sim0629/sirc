@@ -13,6 +13,7 @@ NOTIFY_NAME = '!'
 
 # IRC
 SERVER = 'irc.uriirc.org'
+USE_SSL = True
 PORT = 16662
 BOT_NAME = 's'
 OPERATOR_NAME = 'sgm'

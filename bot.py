@@ -4,7 +4,6 @@ import irc.bot
 import irc.client
 import irc.connection
 
-import ssl
 import pymongo
 import datetime
 
@@ -14,7 +13,11 @@ import urllib2 # only for quote
 
 class SBot(irc.bot.SingleServerIRCBot):
     def __init__(self):
-        factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+        if config.USE_SSL:
+            import ssl
+            factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+        else:
+            factory = irc.connection.Factory()
         irc.bot.SingleServerIRCBot.__init__(self,
             [(config.SERVER, config.PORT), ],
             config.BOT_NAME,
