@@ -6,6 +6,8 @@ import gevent.pywsgi
 import os
 import re
 import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 import cgi
 import Cookie
